@@ -3,7 +3,7 @@ class Fireworks implements MidiViz {
   PVector currentOrigin;
   
   void setup() {
-    background(bgColor);
+    background(0);
     colorMode(HSB);
     currentOrigin = new PVector(width/2, height/2);
   }
