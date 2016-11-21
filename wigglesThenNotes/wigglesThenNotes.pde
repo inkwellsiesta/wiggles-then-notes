@@ -10,16 +10,15 @@ OscP5 oscP5;
 // Keeps track of the visual mode
 ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
 
-// Not being used right now...
-PShader mShader;
 
 boolean debug = true;
 
 void setup() {
-  size(600, 400);
-  //fullScreen();
+  size(600, 400); // use the P2D renderer for the shader modes,
+  //fullScreen(); // otherwise, use the default renderer
 
   vizes.add(new Lissajous());
+  //vizes.add(new MoireShader());
   //vizes.add(new Moire());
 
   // start MidiBus

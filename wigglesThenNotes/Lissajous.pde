@@ -60,7 +60,8 @@ class Lissajous implements MidiViz {
                         "phase offset = " + phaseOffset + "\n" + 
                         "bg alpha = " + alpha + "\n" +
                         "freq 1 = " + f1 + "\n" +
-                        "freq 2 = " + f2 + "\n";
+                        "freq 2 = " + f2 + "\n" + 
+                        "framerate = " + frameRate + "\n";
       textAlign(LEFT, TOP);
       text(debugStr, 0, 0);
       popStyle();

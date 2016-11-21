@@ -26,7 +26,16 @@ class Moire implements MidiViz {
   }
 
   void draw() {
+    background(0);
     syncDraw();
+    
+    if (debug) {
+      pushStyle();
+      fill(255);
+      textAlign(LEFT, TOP);
+      text("framerate = " + frameRate, 0, 0);
+      popStyle();
+    }
   }
 
   synchronized void syncDraw() {

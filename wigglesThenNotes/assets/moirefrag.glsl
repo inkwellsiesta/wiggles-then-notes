@@ -1,6 +1,3 @@
-// Author @patriciogv - 2015
-// http://patriciogonzalezvivo.com
-
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -11,9 +8,13 @@ uniform float r;
 
 float circle(in vec2 _st, in float _radius){
     vec2 dist = _st-vec2(0.5);
-    return 1.-smoothstep(_radius-(_radius*0.01),
-                         _radius+(_radius*0.01),
-                         dot(dist,dist)*4.0);
+    float retVal = abs(sin(20*(sqrt(dot(dist, dist))+_radius)));
+//		(1.-smoothstep(_radius-.1-(_radius*0.01),
+//                         _radius-.1+(_radius*0.01),
+//                         (dot(dist,dist))*4.0));
+   dist = _st-vec2(.75, .25);
+   retVal += abs(sin(20*(sqrt(dot(dist,dist))+_radius)));
+   return retVal;
 }
 
 void main(){
