@@ -11,7 +11,7 @@ class Lissajous implements MidiViz {
     phaseOffset; // phase offset b/t x and y axes in radians
             
   float f1 = midiNoteToFreq(57); // frequency that shape is "tuned" to
-  float f2 = midiNoteToFreq(57); // (ie freq that f1 will always oscillate at)
+  float f2 = midiNoteToFreq(58); // (ie freq that f1 will always oscillate at)
   
   float alpha = 255; // transparency of background
                      // 0-255, lower numbers let previous

@@ -10,8 +10,12 @@ OscP5 oscP5;
 // Keeps track of the visual mode
 ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
 
-
 boolean debug = true;
+//Assign mouse x/y to various parameters for testing purposes
+boolean mapMouseToController = true;
+int mouseChannel = 1;
+int mouseXController = 4;
+int mouseYController = 5;
 
 void setup() {
   size(600, 400); // use the P2D renderer for the shader modes,
@@ -72,6 +76,17 @@ void noteOn(int channel, int pitch, int velocity) {
     println("Channel:"+channel);
     println("Pitch:"+pitch);
     println("Velocity:"+velocity);
+  }
+}
+
+//Mouse movements mapped to controller changes
+
+void mouseMoved()
+{
+  if(mapMouseToController)
+  {
+    controllerChange(mouseChannel, mouseXController, int(map(mouseX, 0, width, 0, 127)));
+    controllerChange(mouseChannel, mouseYController, int(map(mouseY, 0, width, 0, 127)));
   }
 }
 
