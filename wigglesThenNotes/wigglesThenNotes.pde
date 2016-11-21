@@ -80,13 +80,12 @@ void noteOn(int channel, int pitch, int velocity) {
 }
 
 //Mouse movements mapped to controller changes
-
 void mouseMoved()
 {
   if(mapMouseToController)
   {
     controllerChange(mouseChannel, mouseXController, int(map(mouseX, 0, width, 0, 127)));
-    controllerChange(mouseChannel, mouseYController, int(map(mouseY, 0, width, 0, 127)));
+    controllerChange(mouseChannel, mouseYController, int(map(mouseY, 0, height, 0, 127)));
   }
 }
 
