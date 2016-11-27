@@ -13,9 +13,9 @@ float circle(in vec2 _st, in float _radius){
 //		(1.-smoothstep(_radius-.1-(_radius*0.01),
 //                         _radius-.1+(_radius*0.01),
 //                         (dot(dist,dist))*4.0));
-//   dist = _st-vec2(.25, .5);
-//   retVal += sin(20*(sqrt(dot(dist,dist))+_radius));
-//   retVal += .5;
+   dist = _st-vec2(.25, .5);
+   retVal += sin(20*(sqrt(dot(dist,dist))+_radius));
+   retVal += .5;
    return retVal;
 }
 

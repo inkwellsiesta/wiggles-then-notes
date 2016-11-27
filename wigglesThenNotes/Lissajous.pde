@@ -12,13 +12,14 @@ class Lissajous implements MidiViz {
             
   float f1 = midiNoteToFreq(57); // frequency that shape is "tuned" to
   float f2 = midiNoteToFreq(58); // (ie freq that f1 will always oscillate at)
+  float f3 = midiNoteToFreq(60);
   
   float alpha = 255; // transparency of background
                      // 0-255, lower numbers let previous
                      // frames show through
 
   void setup() {
-    center = new PVector(width/2, height/2);
+    center = new PVector(width/2, height/2, 0);
     r = min(width/2, height/2);
     randomness = .5;
     decay = -.1;
@@ -30,24 +31,36 @@ class Lissajous implements MidiViz {
   
   void update() {
     start+=speed;
+    start%=TAU;
   }
   
   void draw() {
-  pushStyle();
-  noStroke();
-  fill(color(0, alpha));
-  rect(0, 0, width, height);
-  popStyle();
+    background(0);
+  //pushStyle();
+  //noStroke();
+  //fill(color(0, alpha));
+  //rect(0, 0, width, height);
+  //popStyle();
     stroke(255);
     noFill();
     strokeWeight(1);
     beginShape();
-    for (float i = 0. + start; i < TWO_PI*4 + start; i+=.1) {
+    for (float i = start; i < TWO_PI*4 + start; i+=.1) {
       float x = center.x + (r*sin(f1*i) + random(-randomness, randomness))*exp(decay*(i-start));
       float y = center.y + (r*sin(f2*i + phaseOffset) + random(-randomness, randomness))*exp(decay*(i-start));
-      curveVertex(x, y);
+      float z = center.z + (r*sin(f3*i) + random(-randomness, randomness))*exp(decay*(i-start));
+      curveVertex(x, y, z);
     }
     endShape();
+    
+    // Radial, this should probably be its own mode
+    /*pushStyle();
+    noStroke();
+    fill(255);
+    float x = center.x + min(width,height)/2.*cos(f1*start)*sin(f2*start + phaseOffset);
+    float y = center.y + min(width,height)/2.*sin(f1*start)*sin(f2*start + phaseOffset);
+    ellipse(x, y, 20, 20);
+    popStyle();*/
     
     if (debug) {
       pushStyle();
