@@ -17,15 +17,24 @@ boolean debug = false;
 //Assign mouse x/y to various parameters for testing purposes
 boolean mapMouseToController = true;
 int mouseChannel = 1;
-int mouseXController = 4;
+int mouseXController = 46;
 int mouseYController = 5;
 
-void setup() {
-  size(600, 400, P3D); // use the P2D renderer for the shader modes,
-  //fullScreen(); // otherwise, use the default renderer
+int vizSpacing = 500;
+int numVizs = 16; //For now, please make sure numRows * numCols = numVizs
+int numRows = 4; 
+int numCols = 4;
 
- vizes.add(new Lissajous());
- // vizes.add(new MoireShader());
+
+void setup() {
+  size(800, 600, P3D); // use the P2D renderer for the shader modes,
+  //fullScreen(P3D); // otherwise, use the default renderer
+
+ for(int i=0;i<numVizs;i++)
+   vizes.add(new Lissajous());
+
+ 
+  //vizes.add(new MoireShader());
   //vizes.add(new Moire());
 
   // start MidiBus
@@ -36,7 +45,7 @@ void setup() {
   oscP5 = new OscP5(this, 12000);
    
   cam = new PeasyCam(this, width/2, height/2, 0, min(width, height));
-  cam.setActive(false);
+  cam.setActive(true);
 
 
   for (MidiViz viz : vizes) {
@@ -45,13 +54,33 @@ void setup() {
 }
 
 void draw() { 
-  noCursor(); 
-  ortho();
-
+  background(0);
+  
+  //Leave ortho() commented out for fun panning and zooming around
+  //ortho();
+  
+  //First shift the whole grid over by 1/2 so the camera stays centered
+  pushMatrix();
+  translate((-(numCols - 1) * vizSpacing)/2, (-(numRows - 1) * vizSpacing)/2);
+  
+  int vizIndex = 0;
+  int curCol = 0;
+  int curRow = 0;
   for (MidiViz viz : vizes) {
     viz.update();
-    viz.draw();
+    //Draw viz in appropriate location within grid
+    curCol = vizIndex % numCols;
+    curRow = floor(vizIndex / numCols);
+   
+    pushMatrix();
+      translate(curCol * (vizSpacing), curRow * (vizSpacing));
+      viz.draw();
+    popMatrix();
+    
+    vizIndex++;
   }
+  
+  popMatrix();
 
   // Uncomment if you want to make a video
   //saveFrame("frames/####.tga");
@@ -67,8 +96,6 @@ void keyPressed() {
 }
 
 void mouseClicked() {
-  debug = !debug;
-  
   for (MidiViz viz : vizes) {
     viz.mouseClicked();
   }

@@ -35,7 +35,7 @@ class Lissajous implements MidiViz {
   }
   
   void draw() {
-    background(0);
+    //background(0);
   //pushStyle();
   //noStroke();
   //fill(color(0, alpha));
@@ -122,6 +122,7 @@ class Lissajous implements MidiViz {
   }
   
   void mouseClicked() {
+    noteOn(1, int(random(0,127)), 100);
   }
   
 }
