@@ -14,18 +14,20 @@ class Lissajous implements MidiViz {
   float f2 = midiNoteToFreq(58); // (ie freq that f1 will always oscillate at)
   float f3 = midiNoteToFreq(60);
   
-  float alpha = 255; // transparency of background
+  float alpha = 0; // transparency of background
                      // 0-255, lower numbers let previous
                      // frames show through
+                     
+  int noteIndex = 0;
 
   void setup() {
     center = new PVector(width/2, height/2, 0);
     r = vizSize; //min(width/2, height/2);
     randomness = 0;//.5;
-    decay = -.1;
+    decay = -.9;
     start = 0;
     speed = 0; //.0001;
-    maxSpeed = .0001;
+    maxSpeed = .00001;
     phaseOffset = HALF_PI;
   }
   
@@ -43,7 +45,7 @@ class Lissajous implements MidiViz {
   //popStyle();
     stroke(255);
     noFill();
-    strokeWeight(1);
+    strokeWeight(2);
     beginShape();
     for (float i = start; i < TWO_PI*4 + start; i+=.1) {
       float x = center.x + (r*sin(f1*i) + random(-randomness, randomness))*exp(decay*(i-start));
@@ -83,9 +85,17 @@ class Lissajous implements MidiViz {
   
   
   void noteOn(int channel, int pitch, int velocity) {   
-    if(channel == 1)
+    if(channel == 0)
+    {
+      speed = 0.00008;
+      Ani.to(this, 1.2, "speed", 0.000001,Ani.QUART_IN_OUT);
+    }
+  
+    if(channel == 1){
       //glitch note freq
-      f2 = midiNoteToFreq(int(random(0,127)));
+      //f2 = midiNoteToFreq(validNotes[int(random(0,validNotes.length))]);
+    }
+    
   }
   
   void controllerChange(int channel, int number, int value) {
@@ -122,7 +132,34 @@ class Lissajous implements MidiViz {
   }
   
   void mouseClicked() {
-    //f2 = midiNoteToFreq(int(random(0,127)));
-  }
+    int index = int(random(0,validNotes.length));
+    //f2 = midiNoteToFreq(validNotes[index]);
+    noteIndex++;
+    println(noteIndex);
+    f2 = midiNoteToFreq(noteIndex);
+   }
+   
+   void keyPress(char key)
+   {
+     switch(key)
+     {
+       case 'a': //slowly reduce decay complexity
+         Ani.to(this, 6, "decay", -.999, Ani.LINEAR);
+         break;
+       case 's': //slowly add decay complexity
+         Ani.to(this, 6, "decay", -0.007, Ani.LINEAR);
+         break;
+       case 'd': //quickly reduce decay complexity
+         Ani.to(this, .6, "decay", -.999, Ani.SINE_IN);
+         break;
+       case 'f': //quickly med decay complexity
+         Ani.to(this, 1, "decay", -.1, Ani.QUART_OUT);
+         break;
+       case 'g': //quickly add decay complexity
+         Ani.to(this, 1.2, "decay", -.007, Ani.QUART_OUT);
+         break;
+     }
+     
+   }
   
 }

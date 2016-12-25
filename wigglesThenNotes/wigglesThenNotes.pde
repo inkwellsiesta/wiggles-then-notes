@@ -1,9 +1,13 @@
+import de.looksgood.ani.*;
+import de.looksgood.ani.easing.*;
+
 import netP5.*;
 import oscP5.*;
 import java.io.*;
 import java.util.*;
 import themidibus.*;
 import peasy.*;
+
 
 // Listening for input other than mouse and keyboard
 MidiBus myBus;
@@ -20,7 +24,8 @@ boolean mapMouseToController = true;
 int mouseChannel = 1;
 int mouseXController = 46;
 int mouseYController = 5;
-
+//int validNotes[] = {2,6,7,8,11,14,15,16,21,28,35,42,48,49,56,63,74,77,84,91,103,105,107,110,112,121,135,157,213,258};
+int validNotes[] = {4,10,13,17,18,20,22,32,33,34,44,45,47,48,51,56,57,68,69,74};
 int vizSize = 400;
 int vizSpacing = 850;
 int numVizs = 2; //For now, please make sure numRows * numCols = numVizs
@@ -29,9 +34,11 @@ int numCols = 2;
 
 
 void setup() {
-  //size(1080, 720, P3D); // use the P2D renderer for the shader modes,
-  fullScreen(P3D); // otherwise, use the default renderer
+  size(1300, 900, P3D); // use the P2D renderer for the shader modes,
+  //fullScreen(P3D); // otherwise, use the default renderer
   noCursor();
+  
+  Ani.init(this);
 
  for(int i=0;i<numVizs;i++)
    vizes.add(new Lissajous());
@@ -107,10 +114,10 @@ void keyPressed() {
     catch(IOException ex){
      print(ex); 
     }
+    return;
   }
-  else
-  {
-    String inputPath = "";
+ 
+  String inputPath = "";
   switch(key)
   {
     
@@ -148,6 +155,9 @@ void keyPressed() {
       inputPath = dataPath("")  + "\\spinx5.cam";
       break;
   }
+  
+  if(inputPath != "")
+  {
    try {
       InputStream file = new FileInputStream(inputPath);
       InputStream buffer = new BufferedInputStream(file);
@@ -157,15 +167,23 @@ void keyPressed() {
       input.close();  
     }
     catch(Exception ex){
-     print(ex); 
+     println(ex); 
     }
-    
+    return;
   }
+  
+  if(key == 'a' || key == 's' || key == 'd' || key == 'f' || key == 'g')
+    for (Lissajous viz : vizes) {    
+    viz.keyPress(key);
+  }
+  
+  
     
 }
+   
 
 void mouseClicked() {
-  for (MidiViz viz : vizes) {
+  for (Lissajous viz : vizes) {    
     viz.mouseClicked();
   }
 }
@@ -195,7 +213,8 @@ void mouseMoved()
     //controllerChange(mouseChannel, mouseXController, int(map(mouseX, 0, width, 0, 127)));
     //controllerChange(mouseChannel, mouseYController, int(map(mouseY, 0, height, 0, 127)));
     for (Lissajous viz : vizes) {
-    viz.decay = map(mouseY, 0, height, 0, -1);
+    //viz.decay = map(mouseY, 0, height, 0, -1);
+    //viz.phaseOffset= map(mouseY, 0, height, 0, HALF_PI);
   }
   }
 }
@@ -228,26 +247,10 @@ void oscEvent(OscMessage theOscMessage) {
       
       if(velocity > 0)
       {
-
-        //Alternate starting and stopping even/odd viz's on channel 0 notes
-        int i =0;
-        if(channel == 0)
-        {
-            if(pitch == 0 || pitch == 1)
-            for (Lissajous viz : vizes) {
-                if(i%2==pitch)viz.speed = 0.000001;
-                else viz.speed = 0.00008;
-                i++;
-            }
-            else if(pitch == 2)
-            for (Lissajous viz : vizes) {
-                viz.speed = 0.000004;
-            }
+        for (Lissajous viz : vizes) {
+         viz.noteOn(channel, pitch, velocity);
         }
-        else //channel > 0              
-          for (Lissajous viz : vizes) {
-            viz.noteOn(channel, pitch, velocity);
-          }
+      }
   
         if (debug) {
           println();
@@ -260,7 +263,7 @@ void oscEvent(OscMessage theOscMessage) {
       }
       return;
     }
-  }
+  
   if (theOscMessage.checkAddrPattern("/mtn/ctrl")) {    
     if (theOscMessage.checkTypetag("iii")) {
       int number = theOscMessage.get(0).intValue();
