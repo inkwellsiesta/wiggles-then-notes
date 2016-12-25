@@ -20,11 +20,11 @@ class Lissajous implements MidiViz {
 
   void setup() {
     center = new PVector(width/2, height/2, 0);
-    r = min(width/2, height/2);
-    randomness = .5;
+    r = vizSize; //min(width/2, height/2);
+    randomness = 0;//.5;
     decay = -.1;
     start = 0;
-    speed = .0001;
+    speed = 0; //.0001;
     maxSpeed = .0001;
     phaseOffset = HALF_PI;
   }
@@ -82,10 +82,10 @@ class Lissajous implements MidiViz {
   }
   
   
-  void noteOn(int channel, int pitch, int velocity) {
-    if (velocity > 0 ) {
-      f2 = midiNoteToFreq(pitch);
-    }
+  void noteOn(int channel, int pitch, int velocity) {   
+    if(channel == 1)
+      //glitch note freq
+      f2 = midiNoteToFreq(int(random(0,127)));
   }
   
   void controllerChange(int channel, int number, int value) {
@@ -122,7 +122,7 @@ class Lissajous implements MidiViz {
   }
   
   void mouseClicked() {
-    noteOn(1, int(random(0,127)), 100);
+    //f2 = midiNoteToFreq(int(random(0,127)));
   }
   
 }

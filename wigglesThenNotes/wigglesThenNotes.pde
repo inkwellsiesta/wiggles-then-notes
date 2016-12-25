@@ -1,6 +1,7 @@
 import netP5.*;
 import oscP5.*;
-
+import java.io.*;
+import java.util.*;
 import themidibus.*;
 import peasy.*;
 
@@ -11,7 +12,7 @@ OscP5 oscP5;
 PeasyCam cam;
 
 // Keeps track of the visual mode
-ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
+ArrayList<Lissajous> vizes = new ArrayList<Lissajous>();
 
 boolean debug = false;
 //Assign mouse x/y to various parameters for testing purposes
@@ -20,15 +21,17 @@ int mouseChannel = 1;
 int mouseXController = 46;
 int mouseYController = 5;
 
-int vizSpacing = 500;
-int numVizs = 16; //For now, please make sure numRows * numCols = numVizs
-int numRows = 4; 
-int numCols = 4;
+int vizSize = 400;
+int vizSpacing = 850;
+int numVizs = 2; //For now, please make sure numRows * numCols = numVizs
+int numRows = 1; 
+int numCols = 2;
 
 
 void setup() {
-  size(800, 600, P3D); // use the P2D renderer for the shader modes,
-  //fullScreen(P3D); // otherwise, use the default renderer
+  //size(1080, 720, P3D); // use the P2D renderer for the shader modes,
+  fullScreen(P3D); // otherwise, use the default renderer
+  noCursor();
 
  for(int i=0;i<numVizs;i++)
    vizes.add(new Lissajous());
@@ -57,7 +60,7 @@ void draw() {
   background(0);
   
   //Leave ortho() commented out for fun panning and zooming around
-  //ortho();
+  ortho();
   
   //First shift the whole grid over by 1/2 so the camera stays centered
   pushMatrix();
@@ -92,7 +95,73 @@ float midiNoteToFreq(int note) {
 }
 
 void keyPressed() {
-  cam.reset();
+  if(key == 'c')
+  {CameraState outputState = cam.getState();
+    try {
+      OutputStream file = new FileOutputStream(dataPath("")  + "\\test.cam");
+      OutputStream buffer = new BufferedOutputStream(file);
+      ObjectOutput output = new ObjectOutputStream(buffer);
+      output.writeObject(outputState);
+      output.close(); 
+    }  
+    catch(IOException ex){
+     print(ex); 
+    }
+  }
+  else
+  {
+    String inputPath = "";
+  switch(key)
+  {
+    
+    case '`':
+      inputPath = dataPath("")  + "\\test.cam";
+      break;
+    case '1':
+      inputPath = dataPath("")  + "\\diag_side.cam";
+      break;
+    case '2':
+      inputPath = dataPath("")  + "\\flipped_x90.cam";
+      break;
+    case '3':
+      inputPath = dataPath("")  + "\\flipped_z90.cam";
+      break;
+    case '4':
+      inputPath = dataPath("")  + "\\side_nice.cam";
+      break;
+    case '5':
+      inputPath = dataPath("")  + "\\side_nice2.cam";
+      break;
+    case '6':
+      inputPath = dataPath("")  + "\\spinx1.cam";
+      break;
+    case '7':
+      inputPath = dataPath("")  + "\\spinx2.cam";
+      break;
+    case '8':
+      inputPath = dataPath("")  + "\\spinx3.cam";
+      break;
+    case '9':
+      inputPath = dataPath("")  + "\\spinx4.cam";
+      break;
+    case '0':
+      inputPath = dataPath("")  + "\\spinx5.cam";
+      break;
+  }
+   try {
+      InputStream file = new FileInputStream(inputPath);
+      InputStream buffer = new BufferedInputStream(file);
+      ObjectInput input = new ObjectInputStream (buffer);
+      CameraState inputState = (CameraState)input.readObject();
+      cam.setState(inputState);
+      input.close();  
+    }
+    catch(Exception ex){
+     print(ex); 
+    }
+    
+  }
+    
 }
 
 void mouseClicked() {
@@ -104,11 +173,11 @@ void mouseClicked() {
 //--- MIDI CALLBACKS MIDI CALLBACKS MIDI CALLBACKS---//
 //--- ---//
 void noteOn(int channel, int pitch, int velocity) {
-  for (MidiViz viz : vizes) {
+  for (Lissajous viz : vizes) {
     viz.noteOn(channel, pitch, velocity);
   }
 
-  if (true) {
+  if (debug) {
     println();
     println("Note On:");
     println("--------");
@@ -123,18 +192,21 @@ void mouseMoved()
 {
   if(mapMouseToController)
   {
-    controllerChange(mouseChannel, mouseXController, int(map(mouseX, 0, width, 0, 127)));
-    controllerChange(mouseChannel, mouseYController, int(map(mouseY, 0, height, 0, 127)));
+    //controllerChange(mouseChannel, mouseXController, int(map(mouseX, 0, width, 0, 127)));
+    //controllerChange(mouseChannel, mouseYController, int(map(mouseY, 0, height, 0, 127)));
+    for (Lissajous viz : vizes) {
+    viz.decay = map(mouseY, 0, height, 0, -1);
+  }
   }
 }
 
 void controllerChange(int channel, int number, int value) {
 
-  for (MidiViz viz : vizes) {
+  for (Lissajous viz : vizes) {
     viz.controllerChange(channel, number, value);
   }
 
-  if (true) {
+  if (debug) {
     println();
     println("Controller Change:");
     println("--------");
@@ -153,18 +225,38 @@ void oscEvent(OscMessage theOscMessage) {
       int pitch = theOscMessage.get(0).intValue();
       int velocity = theOscMessage.get(1).intValue();
       int channel = theOscMessage.get(2).intValue();
+      
+      if(velocity > 0)
+      {
 
-      for (MidiViz viz : vizes) {
-        viz.noteOn(channel, pitch, velocity);
-      }
-
-      if (false) {
-        println();
-        println("OSC Note On:");
-        println("--------");
-        println("Channel:"+channel);
-        println("Pitch:"+pitch);
-        println("Velocity:"+velocity);
+        //Alternate starting and stopping even/odd viz's on channel 0 notes
+        int i =0;
+        if(channel == 0)
+        {
+            if(pitch == 0 || pitch == 1)
+            for (Lissajous viz : vizes) {
+                if(i%2==pitch)viz.speed = 0.000001;
+                else viz.speed = 0.00008;
+                i++;
+            }
+            else if(pitch == 2)
+            for (Lissajous viz : vizes) {
+                viz.speed = 0.000004;
+            }
+        }
+        else //channel > 0              
+          for (Lissajous viz : vizes) {
+            viz.noteOn(channel, pitch, velocity);
+          }
+  
+        if (debug) {
+          println();
+          println("OSC Note On:");
+          println("--------");
+          println("Channel:"+channel);
+          println("Pitch:"+pitch);
+          println("Velocity:"+velocity);
+        }
       }
       return;
     }
@@ -178,7 +270,7 @@ void oscEvent(OscMessage theOscMessage) {
         viz.controllerChange(channel, number, value);
       }
 
-      if (true) {
+      if (debug) {
         println();
         println("OSC Controller Change:");
         println("--------");

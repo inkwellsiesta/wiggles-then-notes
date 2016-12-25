@@ -1,5 +1,4 @@
 interface MidiViz {
-  
   void setup();
   void update();
   void draw();
