@@ -61,11 +61,17 @@ class Lissajous implements MidiViz {
     float y = center.y + min(width,height)/2.*sin(f1*start)*sin(f2*start + phaseOffset);
     ellipse(x, y, 20, 20);
     popStyle();*/
-    
-    if (debug) {
-      pushStyle();
-      fill(255);
-      String debugStr = "size = " + r + "\n" +
+  }
+  
+  
+  void noteOn(int channel, int pitch, int velocity) {
+    if (velocity > 0 ) {
+      f2 = midiNoteToFreq(pitch);
+    }
+  }
+  
+  public String debugString() {
+    return "size = " + r + "\n" +
                         "randomness = " + randomness + "\n" + 
                         "decay = " + decay + "\n" + 
                         "speed = " + speed + "\n" + 
@@ -75,17 +81,6 @@ class Lissajous implements MidiViz {
                         "freq 1 = " + f1 + "\n" +
                         "freq 2 = " + f2 + "\n" + 
                         "framerate = " + frameRate + "\n";
-      textAlign(LEFT, TOP);
-      text(debugStr, 0, 0);
-      popStyle();
-    }
-  }
-  
-  
-  void noteOn(int channel, int pitch, int velocity) {
-    if (velocity > 0 ) {
-      f2 = midiNoteToFreq(pitch);
-    }
   }
   
   void controllerChange(int channel, int number, int value) {

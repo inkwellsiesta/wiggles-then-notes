@@ -10,10 +10,11 @@ OscP5 oscP5;
 
 PeasyCam cam;
 
+DebugTray debugTray = new DebugTray();
+
 // Keeps track of the visual mode
 ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
 
-boolean debug = false;
 //Assign mouse x/y to various parameters for testing purposes
 boolean mapMouseToController = true;
 int mouseChannel = 1;
@@ -51,6 +52,8 @@ void setup() {
   for (MidiViz viz : vizes) {
     viz.setup();
   }
+  
+  debugTray.setup();
 }
 
 void draw() { 
@@ -81,6 +84,10 @@ void draw() {
   }
   
   popMatrix();
+  
+  cam.beginHUD();
+  debugTray.draw();
+  cam.endHUD();
 
   // Uncomment if you want to make a video
   //saveFrame("frames/####.tga");
@@ -99,6 +106,7 @@ void mouseClicked() {
   for (MidiViz viz : vizes) {
     viz.mouseClicked();
   }
+  debugTray.mouseClicked();
 }
 
 //--- MIDI CALLBACKS MIDI CALLBACKS MIDI CALLBACKS---//

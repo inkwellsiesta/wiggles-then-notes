@@ -46,6 +46,10 @@ class Fireworks implements MidiViz {
   void mouseClicked() {
     currentOrigin.set(mouseX, mouseY);  
   }
+  
+  String debugString() {
+    return "";
+  }
 
 
   class Particle {

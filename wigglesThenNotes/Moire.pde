@@ -28,14 +28,7 @@ class Moire implements MidiViz {
   void draw() {
     background(0);
     syncDraw();
-    
-    if (debug) {
-      pushStyle();
-      fill(255);
-      textAlign(LEFT, TOP);
-      text("framerate = " + frameRate, 0, 0);
-      popStyle();
-    }
+   
   }
 
   synchronized void syncDraw() {
@@ -65,6 +58,9 @@ class Moire implements MidiViz {
     currentOrigin.set(mouseX, mouseY);
   }
 
+  String debugString() {
+    return "framerate = " + frameRate;
+  } 
 
   class Target {
     int minrad, maxrad; // min and max radii

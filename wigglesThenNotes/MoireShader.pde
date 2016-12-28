@@ -29,9 +29,6 @@ class MoireShader implements MidiViz {
       updateN = false; 
     }
     
-    if (debug) {
-      println(frameRate);
-    }
   }
   
   void noteOn(int channel, int pitch, int velocity) {
@@ -46,4 +43,8 @@ class MoireShader implements MidiViz {
   
   void mouseClicked() {
   }
+  
+  String debugString() {
+    return "framerate = " + frameRate;
+  } 
 }

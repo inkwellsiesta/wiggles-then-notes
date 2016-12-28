@@ -7,4 +7,6 @@ interface MidiViz {
   void controllerChange(int channel, int number, int value);
   void mouseClicked();
   
+  String debugString();
+  
 }
