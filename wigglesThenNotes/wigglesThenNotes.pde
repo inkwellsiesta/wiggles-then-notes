@@ -15,26 +15,20 @@ DebugTray debugTray = new DebugTray();
 // Keeps track of the visual mode
 ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
 
-//Assign mouse x/y to various parameters for testing purposes
-boolean mapMouseToController = true;
-int mouseChannel = 1;
-int mouseXController = 46;
-int mouseYController = 5;
-
 int vizSpacing = 500;
-int numVizs = 16; //For now, please make sure numRows * numCols = numVizs
-int numRows = 4; 
-int numCols = 4;
+int numVizs = 1; //For now, please make sure numRows * numCols = numVizs
+int numRows = 1; 
+int numCols = 1;
 
 
 void setup() {
   size(800, 600, P3D); // use the P2D renderer for the shader modes,
   //fullScreen(P3D); // otherwise, use the default renderer
 
- for(int i=0;i<numVizs;i++)
-   vizes.add(new Lissajous());
+  for (int i=0; i<numVizs; i++)
+    vizes.add(new Lissajous());
 
- 
+
   //vizes.add(new MoireShader());
   //vizes.add(new Moire());
 
@@ -44,7 +38,7 @@ void setup() {
 
   // start oscP5, listening for incoming messages at port 12000
   oscP5 = new OscP5(this, 12000);
-   
+
   cam = new PeasyCam(this, width/2, height/2, 0, min(width, height));
   cam.setActive(true);
 
@@ -52,20 +46,20 @@ void setup() {
   for (MidiViz viz : vizes) {
     viz.setup();
   }
-  
+
   debugTray.setup();
 }
 
 void draw() { 
   background(0);
-  
+
   //Leave ortho() commented out for fun panning and zooming around
   //ortho();
-  
+
   //First shift the whole grid over by 1/2 so the camera stays centered
   pushMatrix();
   translate((-(numCols - 1) * vizSpacing)/2, (-(numRows - 1) * vizSpacing)/2);
-  
+
   int vizIndex = 0;
   int curCol = 0;
   int curRow = 0;
@@ -74,17 +68,17 @@ void draw() {
     //Draw viz in appropriate location within grid
     curCol = vizIndex % numCols;
     curRow = floor(vizIndex / numCols);
-   
+
     pushMatrix();
-      translate(curCol * (vizSpacing), curRow * (vizSpacing));
-      viz.draw();
+    translate(curCol * (vizSpacing), curRow * (vizSpacing));
+    viz.draw();
     popMatrix();
-    
+
     vizIndex++;
   }
-  
+
   popMatrix();
-  
+
   cam.beginHUD();
   debugTray.draw();
   cam.endHUD();
@@ -106,6 +100,7 @@ void mouseClicked() {
   for (MidiViz viz : vizes) {
     viz.mouseClicked();
   }
+
   debugTray.mouseClicked();
 }
 
@@ -126,14 +121,16 @@ void noteOn(int channel, int pitch, int velocity) {
   }
 }
 
-//Mouse movements mapped to controller changes
-void mouseMoved()
-{
-  if(mapMouseToController)
-  {
-    controllerChange(mouseChannel, mouseXController, int(map(mouseX, 0, width, 0, 127)));
-    controllerChange(mouseChannel, mouseYController, int(map(mouseY, 0, height, 0, 127)));
-  }
+void mousePressed() {
+  debugTray.mousePressed();
+}
+
+void mouseDragged() {
+  debugTray.mouseDragged();
+}
+
+void mouseReleased() {
+  debugTray.mouseReleased();
 }
 
 void controllerChange(int channel, int number, int value) {

@@ -1,17 +1,17 @@
 class Fireworks implements MidiViz {
   ArrayList<Particle> particles = new ArrayList<Particle>();
   PVector currentOrigin;
-  
+
   void setup() {
     background(0);
     colorMode(HSB);
     currentOrigin = new PVector(width/2, height/2);
   }
-  
+
   void update() {
     syncUpdate();
   }
-  
+
   synchronized void syncUpdate() {
     for (int i = 0; i < particles.size(); i++) {
       Particle particle = particles.get(i);
@@ -26,27 +26,28 @@ class Fireworks implements MidiViz {
     syncDraw();
     filter(BLUR);
   }
-  
+
   synchronized void syncDraw() {
     for (int i = 0; i < particles.size(); i++) {
       Particle particle = particles.get(i);
       particle.draw();
     }
   }
-    
+
   void noteOn(int channel, int pitch, int velocity) {
     int elColor, elSize;
     elColor = (int)map((float)pitch, 32., 72., 100., 255.);
     elSize = 10;
     particles.add(new Particle(log(velocity), elColor, elSize));
   }
-  
-  void controllerChange(int channel, int number, int value) {}
-  
-  void mouseClicked() {
-    currentOrigin.set(mouseX, mouseY);  
+
+  void controllerChange(int channel, int number, int value) {
   }
-  
+
+  void mouseClicked() {
+    currentOrigin.set(mouseX, mouseY);
+  }
+
   String debugString() {
     return "";
   }
@@ -83,5 +84,9 @@ class Fireworks implements MidiViz {
       noFill();
       ellipse(position.x, position.y, size, size);
     }
+  }
+
+  List<Slider> sliders() {
+    return new ArrayList<Slider>();
   }
 }
