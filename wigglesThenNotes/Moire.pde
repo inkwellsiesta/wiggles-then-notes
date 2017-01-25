@@ -26,11 +26,11 @@ class Moire implements MidiViz {
   }
 
   void draw(PGraphics pg) {
-    background(0);
     syncDraw(pg);
   }
 
   synchronized void syncDraw(PGraphics pg) {
+      pg.background(0);
     for (int i = 0; i < targets.size(); i++) {
       targets.get(i).draw(pg);
     }
@@ -38,7 +38,7 @@ class Moire implements MidiViz {
 
   void noteOn(int channel, int pitch, int velocity) {
     println("adding target");
-    if (frameRate > 20) {
+    if (frameRate > 50) {
       targets.add(new Target(10, round(10000./midiNoteToFreq(pitch)), max(1, velocity/10)));
     } else {
       println("Can't add more than " + targets.size() + " targets.");
@@ -98,7 +98,6 @@ class Moire implements MidiViz {
     }
 
     void draw(PGraphics pg) {
-      pg.background(0);
       pg.stroke(intensity, alpha);
       pg.strokeWeight(weight);
       // To acheive the illusion of a continuously moving wavefront...

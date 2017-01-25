@@ -11,13 +11,14 @@ DebugTray debugTray = new DebugTray();
 
 // Keeps track of the visual mode
 ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
+int activeViz;
+FadeManager fm = new FadeManager();
 
+// Used for the downsamply transition
 PGraphics pg;
 
-int activeViz;
-
+// Stupid thing adam asked for
 CoinManager coins;
-
 
 void setup() {
   size(800, 600, P3D); // use the P2D renderer for the shader modes,
@@ -27,7 +28,7 @@ void setup() {
   vizes.add(new Lissajous());
   //vizes.add(new MoireShader());
   vizes.add(new Moire());
-  
+
   activeViz = 0;
 
 
@@ -49,30 +50,32 @@ void setup() {
 
 void draw() { 
   background(0);
-  
-  
+  fm.update();
+
+
   // Draw onto a PGraphics object
   pg.beginDraw();
-  //for (MidiViz viz : vizes) {
-    vizes.get(activeViz).update();
-    vizes.get(activeViz).draw(pg);
-  //}
+  vizes.get(activeViz).update();
+  vizes.get(activeViz).draw(pg);
   pg.endDraw();
-  
-  
+
+
   // Downsample and upsample
-  PImage pi = pg.get();
-  pi.resize(round((sin(radians(frameCount*2)) + 1)*200 + 10), 0);
-  pi.resize(width, 0);
-  image(pi, 0, 0);
+  if (fm.age > 0 && fm.age < 100) {
+    PImage pi = pg.get();
+    pi.resize(round(map(abs(50-fm.age), 0, 50, 10, width)), 0);
+    pi.resize(width, 0);
+    image(pi, 0, 0);
+  } else {
+    image(pg, 0, 0);
+  }
   debugTray.draw();
-  
+
   coins.draw();
 
   // Uncomment if you want to make a video
   //saveFrame("frames/####.tga");
   //println(frameRate);
- 
 }
 
 
@@ -81,18 +84,15 @@ float midiNoteToFreq(int note) {
 }
 
 void keyPressed() {
-  println(key);
   int num = Character.getNumericValue(key);
-  println(num);
   if (num > 0 && num <= vizes.size()) {
-    activeViz = (num - 1);
+    //activeViz = (num - 1);
+    fm.setTarget(num-1);
   }
 }
 
 void mouseClicked() {
-  //for (MidiViz viz : vizes) {
-    vizes.get(activeViz).mouseClicked();
-  //}
+  vizes.get(activeViz).mouseClicked();
 
   coins.addCoin();
   debugTray.mouseClicked();
@@ -101,9 +101,7 @@ void mouseClicked() {
 //--- MIDI CALLBACKS MIDI CALLBACKS MIDI CALLBACKS---//
 //--- ---//
 void noteOn(int channel, int pitch, int velocity) {
-  //or (MidiViz viz : vizes) {
-    vizes.get(activeViz).noteOn(channel, pitch, velocity);
-  //}
+  vizes.get(activeViz).noteOn(channel, pitch, velocity);
 
   if (true) {
     println();
@@ -152,10 +150,11 @@ void oscEvent(OscMessage theOscMessage) {
       int pitch = theOscMessage.get(0).intValue();
       int velocity = theOscMessage.get(1).intValue();
       int channel = theOscMessage.get(2).intValue();
-
-      //for (MidiViz viz : vizes) {
+      if (channel == 1 && velocity > 0) {
+        coins.addCoin();
+      } else {
         vizes.get(activeViz).noteOn(channel, pitch, velocity);
-      //}
+      }
 
       if (false) {
         println();
@@ -174,7 +173,7 @@ void oscEvent(OscMessage theOscMessage) {
       int value = theOscMessage.get(1).intValue();
       int channel = theOscMessage.get(2).intValue();
       //for (MidiViz viz : vizes) {
-        vizes.get(activeViz).controllerChange(channel, number, value);
+      vizes.get(activeViz).controllerChange(channel, number, value);
       //}
 
       if (false) {

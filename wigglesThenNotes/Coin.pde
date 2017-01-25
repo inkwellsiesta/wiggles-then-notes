@@ -1,16 +1,27 @@
 class CoinManager {
   ArrayList<Coin> coins;
-  final float gravity = 3;
+  PImage coinImg;
+  final float gravity = 1;
   
   CoinManager() {
       coins = new ArrayList<Coin>();
+      coinImg = loadImage("coin.png");
   }
 
-  void addCoin() {
+  synchronized void addCoin() {
     coins.add(new Coin());
   }
+  
+  void update() {
+    for (int i = 0; i < coins.size(); i++) {
+      Coin c = coins.get(i);
+      if (c.y > height) {
+        coins.remove(c);
+      }
+    }
+  }
 
-  void draw() {
+  synchronized void draw() {
     for (Coin coin : coins) {
       coin.draw();
     }
@@ -20,23 +31,24 @@ class CoinManager {
       float x, y;
       float v;
       int age;
-      PImage img;
+      boolean kill;
 
       Coin() {
         age = 0;
         x = random(0, width);
         y = random(0, height);
-
-        img = loadImage("coin.png");
+        v = -8;
+        kill = false;
       }
 
-      void draw() {
-        if (age < 20) {
+      synchronized void draw() {
+        //if (age < 20) {
           pushStyle();
-          tint(255, map(age, 0, 20, 255, 0));
-          image(img, x - 25*cos(radians(75*age)), y-4*age, 50*cos(radians(75*age)), 50);
+          //tint(255, map(age, 0, 20, 255, 0));
+          v+=gravity;
+          image(coinImg, x - 25*cos(radians(50*age)), y+v*age, 50*cos(radians(50*age)), 50);
           popStyle();
-        }
+        //}
         age++;
       }
     }
