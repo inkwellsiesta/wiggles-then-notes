@@ -19,7 +19,7 @@ class MoireShader implements MidiViz {
       r=1.5;
     }
   }
-  void draw() {
+  void draw(PGraphics pg) {
     background(100);
     shader(mShader);
     rect(0, 0, width, height);

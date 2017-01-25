@@ -45,24 +45,24 @@ class Lissajous implements MidiViz {
     speed = debugSliders.get(1).val;
   }
 
-  void draw() {
-    //background(0);
+  void draw(PGraphics pg) {
+    pg.background(0);
     //pushStyle();
     //noStroke();
     //fill(color(0, alpha));
     //rect(0, 0, width, height);
     //popStyle();
-    stroke(255);
-    noFill();
-    strokeWeight(1);
-    beginShape();
+    pg.stroke(255);
+    pg.noFill();
+    pg.strokeWeight(2);
+    pg.beginShape();
     for (float i = start; i < TWO_PI*4 + start; i+=.1) {
       float x = center.x + (r*sin(f1*i) + random(-randomness, randomness))*exp(decay*(i-start));
       float y = center.y + (r*sin(f2*i + phaseOffset) + random(-randomness, randomness))*exp(decay*(i-start));
-      float z = center.z + (r*sin(f3*i) + random(-randomness, randomness))*exp(decay*(i-start));
-      curveVertex(x, y, z);
+      //float z = center.z + (r*sin(f3*i) + random(-randomness, randomness))*exp(decay*(i-start));
+      pg.curveVertex(x, y);
     }
-    endShape();
+    pg.endShape();
 
     // Radial, this should probably be its own mode
     /*pushStyle();

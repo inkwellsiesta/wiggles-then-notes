@@ -25,20 +25,20 @@ class Moire implements MidiViz {
     }
   }
 
-  void draw() {
+  void draw(PGraphics pg) {
     background(0);
-    syncDraw();
+    syncDraw(pg);
   }
 
-  synchronized void syncDraw() {
+  synchronized void syncDraw(PGraphics pg) {
     for (int i = 0; i < targets.size(); i++) {
-      targets.get(i).draw();
+      targets.get(i).draw(pg);
     }
   }
 
   void noteOn(int channel, int pitch, int velocity) {
     println("adding target");
-    if (frameRate > 50) {
+    if (frameRate > 20) {
       targets.add(new Target(10, round(10000./midiNoteToFreq(pitch)), max(1, velocity/10)));
     } else {
       println("Can't add more than " + targets.size() + " targets.");
@@ -97,21 +97,22 @@ class Moire implements MidiViz {
       }
     }
 
-    void draw() {
-      stroke(intensity, alpha);
-      strokeWeight(weight);
+    void draw(PGraphics pg) {
+      pg.background(0);
+      pg.stroke(intensity, alpha);
+      pg.strokeWeight(weight);
       // To acheive the illusion of a continuously moving wavefront...
       // Draw from the inside out when no new rings are being drawn
       //   from the center of the target
       if (dying) {
         for (int i = minrad; i < maxrad; i+=weight*4) {
-          ellipse(origin.x, origin.y, i, i);
+          pg.ellipse(origin.x, origin.y, i, i);
         }
         // Draw from the outside in otherwise
       } else {
         int i;
         for (i = maxrad; i > minrad; i-=weight*4) {
-          ellipse(origin.x, origin.y, i, i);
+          pg.ellipse(origin.x, origin.y, i, i);
         }
         // But calculate the offset so there's no discontinuity
         //  when the target is killed
