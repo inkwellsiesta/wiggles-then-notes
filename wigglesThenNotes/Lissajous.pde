@@ -52,15 +52,23 @@ class Lissajous implements MidiViz {
     
     pg.pushMatrix();
     pg.scale(1./m);
-    pg.stroke(255);
+    pg.stroke(255, 50);
     pg.noFill();
     pg.strokeWeight(2);
     pg.beginShape();
     for (float i = start; i < TWO_PI*4 + start; i+=.1) {
       float x = center.x + (r*sin(f1*i) + random(-randomness, randomness))*exp(decay*(i-start));
       float y = center.y + (r*sin(f2*i + phaseOffset) + random(-randomness, randomness))*exp(decay*(i-start));
-      //float z = center.z + (r*sin(f3*i) + random(-randomness, randomness))*exp(decay*(i-start));
       pg.curveVertex(x, y);
+    }
+    pg.endShape();
+    pg.stroke(255);
+    pg.beginShape(POINTS);
+    for (float i = start + .1; i < TWO_PI*4 + start; i+=.1) {
+      float x = center.x + (r*sin(f1*i) + random(-randomness, randomness))*exp(decay*(i-start));
+      float y = center.y + (r*sin(f2*i + phaseOffset) + random(-randomness, randomness))*exp(decay*(i-start));
+      pg.strokeWeight(map(dist(x, y, center.x, center.y), 0, width/2, 0, 8));
+      pg.vertex(x, y);
     }
     pg.endShape();
     pg.popMatrix();
