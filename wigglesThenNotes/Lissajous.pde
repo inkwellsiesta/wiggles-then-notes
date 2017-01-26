@@ -14,7 +14,7 @@ class Lissajous implements MidiViz {
   float f2 = midiNoteToFreq(58); // (ie freq that f1 will always oscillate at)
   float f3 = midiNoteToFreq(60);
 
-  float alpha = 255; // transparency of background
+  float alpha = 0; // transparency of background
   // 0-255, lower numbers let previous
   // frames show through
 
@@ -52,7 +52,7 @@ class Lissajous implements MidiViz {
     
     pg.pushMatrix();
     pg.scale(1./m);
-    pg.stroke(255, 50);
+    pg.stroke(255, alpha);
     pg.noFill();
     pg.strokeWeight(2);
     pg.beginShape();
@@ -62,12 +62,12 @@ class Lissajous implements MidiViz {
       pg.curveVertex(x, y);
     }
     pg.endShape();
-    pg.stroke(255);
+    pg.stroke(255, 255-alpha);
     pg.beginShape(POINTS);
     for (float i = start + .1; i < TWO_PI*4 + start; i+=.1) {
       float x = center.x + (r*sin(f1*i) + random(-randomness, randomness))*exp(decay*(i-start));
       float y = center.y + (r*sin(f2*i + phaseOffset) + random(-randomness, randomness))*exp(decay*(i-start));
-      pg.strokeWeight(map(dist(x, y, center.x, center.y), 0, width/2, 0, 8));
+      pg.strokeWeight(map(dist(x, y, center.x, center.y), 0, width/2, 1, 10));
       pg.vertex(x, y);
     }
     pg.endShape();

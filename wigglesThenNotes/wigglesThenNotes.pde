@@ -48,7 +48,7 @@ void setup() {
 }
 
 void draw() { 
-  background(0);
+  //background(0);
   fm.update();
 
 
@@ -68,6 +68,7 @@ void draw() {
     PImage pi = pg.get();
     image(pg, 0, 0, width*multiplier, height*multiplier);
   } else {
+    tint(255, 100);
     image(pg, 0, 0, width, height);
   }
   debugTray.draw();
