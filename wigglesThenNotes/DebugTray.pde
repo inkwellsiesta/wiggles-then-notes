@@ -38,7 +38,8 @@ class DebugTray {
       // write the text
       noStroke();     
       textAlign(LEFT, TOP);
-      for (MidiViz viz : vizes) {
+      //for (MidiViz viz : vizes) {
+        MidiViz viz = vizes.get(activeViz);
         text(viz.debugString(), 10, height - h.val() + 10, 
           width/2 - 20, h.val() - 20);
           
@@ -49,7 +50,7 @@ class DebugTray {
             10, h.val() - 50);
           x+=40;
         }
-      }
+      //}
     } else {
       // draw the triangle to expand
       fill(255);

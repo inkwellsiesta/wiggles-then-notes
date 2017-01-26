@@ -26,11 +26,10 @@ void setup() {
   pg = createGraphics(800, 600);
 
   vizes.add(new Lissajous());
-  //vizes.add(new MoireShader());
+  vizes.add(new MoireShader());
   vizes.add(new Moire());
 
   activeViz = 0;
-
 
   coins = new CoinManager();
   // start MidiBus
@@ -56,18 +55,20 @@ void draw() {
   // Draw onto a PGraphics object
   pg.beginDraw();
   vizes.get(activeViz).update();
-  vizes.get(activeViz).draw(pg);
+  float multiplier = 1.;
+  if (fm.age > 0 && fm.age < 100) {
+     multiplier = map(abs(50-fm.age), 0, 50, 80, 4);
+  }
+  vizes.get(activeViz).draw(pg, multiplier);
   pg.endDraw();
 
 
   // Downsample and upsample
   if (fm.age > 0 && fm.age < 100) {
     PImage pi = pg.get();
-    pi.resize(round(map(abs(50-fm.age), 0, 50, 10, width)), 0);
-    pi.resize(width, 0);
-    image(pi, 0, 0);
+    image(pg, 0, 0, width*multiplier, height*multiplier);
   } else {
-    image(pg, 0, 0);
+    image(pg, 0, 0, width, height);
   }
   debugTray.draw();
 
@@ -75,7 +76,6 @@ void draw() {
 
   // Uncomment if you want to make a video
   //saveFrame("frames/####.tga");
-  //println(frameRate);
 }
 
 
@@ -172,9 +172,7 @@ void oscEvent(OscMessage theOscMessage) {
       int number = theOscMessage.get(0).intValue();
       int value = theOscMessage.get(1).intValue();
       int channel = theOscMessage.get(2).intValue();
-      //for (MidiViz viz : vizes) {
       vizes.get(activeViz).controllerChange(channel, number, value);
-      //}
 
       if (false) {
         println();

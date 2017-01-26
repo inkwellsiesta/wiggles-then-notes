@@ -25,21 +25,24 @@ class Moire implements MidiViz {
     }
   }
 
-  void draw(PGraphics pg) {
-    syncDraw(pg);
+  void draw(PGraphics pg, float m) {
+    syncDraw(pg, m);
   }
 
-  synchronized void syncDraw(PGraphics pg) {
+  synchronized void syncDraw(PGraphics pg, float m) {
       pg.background(0);
+      pg.pushMatrix();
+      pg.scale(1./m);
     for (int i = 0; i < targets.size(); i++) {
-      targets.get(i).draw(pg);
+      targets.get(i).draw(pg, m);
     }
+    pg.popMatrix();
   }
 
   void noteOn(int channel, int pitch, int velocity) {
     println("adding target");
     if (frameRate > 50) {
-      targets.add(new Target(10, round(10000./midiNoteToFreq(pitch)), max(1, velocity/10)));
+      targets.add(new Target(10, round(10000./midiNoteToFreq(pitch)), max(1, velocity/80)));
     } else {
       println("Can't add more than " + targets.size() + " targets.");
     }
@@ -67,7 +70,7 @@ class Moire implements MidiViz {
     PVector origin;     // where shape originates from
     int intensity = 255, alpha = 255;
     int age;            // number of frames of existence
-    static final int MAX_AGE = 500;  // nothing lives forever
+    static final int MAX_AGE = 4000;  // nothing lives forever
     boolean dying = false;
 
     int offset = 0;     // difference between specified minrad
@@ -97,7 +100,7 @@ class Moire implements MidiViz {
       }
     }
 
-    void draw(PGraphics pg) {
+    void draw(PGraphics pg, float m) {
       pg.stroke(intensity, alpha);
       pg.strokeWeight(weight);
       // To acheive the illusion of a continuously moving wavefront...

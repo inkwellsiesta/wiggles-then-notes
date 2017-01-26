@@ -13,14 +13,16 @@ class MoireShader implements MidiViz {
     mShader.set("r", r);
     mShader.set("n", n);
   }
+  
   void update() {
-    r-=.005;
+    r-=.001;
     if (r < minR) {//(n*1.5/TAU - floor(n*1.5/TAU))*PI/n) {
       r=1.5;
     }
   }
-  void draw(PGraphics pg) {
-    background(100);
+  
+  void draw(PGraphics pg, float m) {
+    background(0);
     shader(mShader);
     rect(0, 0, width, height);
     mShader.set("r", r);
@@ -28,6 +30,8 @@ class MoireShader implements MidiViz {
       mShader.set("n", n);
       updateN = false;
     }
+    
+    println(frameRate);
   }
 
   void noteOn(int channel, int pitch, int velocity) {
