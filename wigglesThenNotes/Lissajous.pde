@@ -9,17 +9,15 @@ class Lissajous implements MidiViz {
     // forms shape
     maxSpeed, 
     phaseOffset; // phase offset b/t x and y axes in radians
+    
+  boolean noteLock; // if true, ignore midi and osc note changes
 
   float f1 = midiNoteToFreq(57); // frequency that shape is "tuned" to
   float f2 = midiNoteToFreq(58); // (ie freq that f1 will always oscillate at)
-  float f3 = midiNoteToFreq(60);
 
-  float alpha = 0; // transparency of background
-  // 0-255, lower numbers let previous
-  // frames show through
+  float alpha = 255; // transparency of lines vs dots
 
   List<Slider> debugSliders;
-  
   PGraphics pg;
 
   void setup() {
@@ -32,6 +30,8 @@ class Lissajous implements MidiViz {
     speed = .0001;
     maxSpeed = .0001;
     phaseOffset = HALF_PI;
+    
+    noteLock = true;
 
     debugSliders = new ArrayList<Slider>();
     // decay
@@ -91,7 +91,7 @@ class Lissajous implements MidiViz {
 
 
   void noteOn(int channel, int pitch, int velocity) {
-    if (velocity > 0 ) {
+    if (velocity > 0 && !noteLock) {
       f2 = midiNoteToFreq(pitch);
     }
   }
@@ -106,6 +106,7 @@ class Lissajous implements MidiViz {
       "bg alpha = " + alpha + "\n" +
       "freq 1 = " + f1 + "\n" +
       "freq 2 = " + f2 + "\n" + 
+      noteLock? "note locked\n" : "\n" + 
       "framerate = " + round(frameRate);
   }
 
@@ -146,6 +147,12 @@ class Lissajous implements MidiViz {
 
   void mouseClicked() {
     //noteOn(1, int(random(0, 127)), 100);
+  }
+  
+  void keyPressed() {
+    if (key == ' ') {
+      noteLock = !noteLock;
+    }
   }
 
   List<Slider> sliders() {

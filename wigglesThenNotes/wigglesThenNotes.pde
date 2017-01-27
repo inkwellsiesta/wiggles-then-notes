@@ -78,9 +78,11 @@ float midiNoteToFreq(int note) {
 }
 
 void keyPressed() {
+  vizes.get(activeViz).keyPressed();
+  
+  // Change the visualization mode if there are multiples
   int num = Character.getNumericValue(key);
   if (num > 0 && num <= vizes.size()) {
-    //activeViz = (num - 1);
     fm.setTarget(num-1);
   }
 }

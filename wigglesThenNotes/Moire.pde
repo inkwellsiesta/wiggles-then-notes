@@ -4,11 +4,15 @@ class Moire implements MidiViz {
   int strokeColor = 255;
   
   PGraphics pg;
+  PShape circle;
 
   void setup() {
-    noFill();
     currentOrigin = new PVector(width/2, height/2);
     pg = createGraphics(width, height);
+    circle = createShape(ELLIPSE, 0, 0, width, width);
+    circle.setFill(color(0,0,0,0));
+    circle.setStroke(255);
+    circle.setStrokeWeight(3);
   }
 
   void update() {
@@ -36,6 +40,7 @@ class Moire implements MidiViz {
     pg.beginDraw();
       pg.background(0);
       pg.pushMatrix();
+      //pg.shape(circle, width/2, height/2, 40, 40);
       pg.scale(1./m);
     for (int i = 0; i < targets.size(); i++) {
       targets.get(i).draw(pg, m);
@@ -63,6 +68,9 @@ class Moire implements MidiViz {
 
   void mouseClicked() {
     currentOrigin.set(mouseX, mouseY);
+  }
+  
+  void keyPressed() {
   }
 
   String debugString() {
@@ -117,12 +125,14 @@ class Moire implements MidiViz {
       if (dying) {
         for (int i = minrad; i < maxrad; i+=weight*4) {
           pg.ellipse(origin.x, origin.y, i, i);
+          //pg.shape(circle, origin.x, origin.y, i, i);
         }
         // Draw from the outside in otherwise
       } else {
         int i;
         for (i = maxrad; i > minrad; i-=weight*4) {
           pg.ellipse(origin.x, origin.y, i, i);
+          //pg.shape(circle, origin.x, origin.y, i, i);
         }
       println(weight);
         // But calculate the offset so there's no discontinuity

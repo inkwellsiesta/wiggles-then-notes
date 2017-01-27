@@ -2,11 +2,11 @@ class MoireShader implements MidiViz {
   PShader mShader;
 
   private float r = 0;
-  private float minR = 0;
-  private float n = 1;
-  private boolean updateN = false;
+  private float n = 75;
+  private boolean updateN = true;
   
-  private float speed = .01;
+  private float speed = .001;
+  private final float MAX_SPEED = .001;
   
   PGraphics pg;
 
@@ -22,12 +22,6 @@ class MoireShader implements MidiViz {
   
   void update() {
     r-=speed;
-    /*if (r < minR) {//(n*1.5/TAU - floor(n*1.5/TAU))*PI/n) {
-      float offset = ((1.5*width/n) - floor(1.5*width/n));
-      println(n);
-      println(offset);
-      r=1.5;
-    }*/
   }
   
   PGraphics draw(float m) {
@@ -46,16 +40,18 @@ class MoireShader implements MidiViz {
 
   void noteOn(int channel, int pitch, int velocity) {
     //mShader.set("r", 0.5); // can only do this in the main thread
-    n = pitch;
-    minR = (n*20*1.5*1.5/TAU - floor(n*20*1.5*1.5/TAU))*TAU/(n*20*1.5);
-    updateN = true;
+    //n = pitch;
+    //updateN = true;
   }
 
   void controllerChange(int channel, int number, int value) {
-    speed = map(value, 0, 127, -.01, .01);
+    speed = map(value, 0, 127, -MAX_SPEED, MAX_SPEED);
   }
 
   void mouseClicked() {
+  }
+  
+  void keyPressed() {
   }
 
   String debugString() {
