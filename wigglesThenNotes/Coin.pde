@@ -22,6 +22,7 @@ class CoinManager {
   }
 
   synchronized void draw() {
+    tint(255, 255);
     for (Coin coin : coins) {
       coin.draw();
     }

@@ -19,8 +19,11 @@ class Lissajous implements MidiViz {
   // frames show through
 
   List<Slider> debugSliders;
+  
+  PGraphics pg;
 
   void setup() {
+    pg = createGraphics(width, height);
     center = new PVector(width/2, height/2, 0);
     r = min(width/2, height/2);
     randomness = .5;
@@ -45,7 +48,8 @@ class Lissajous implements MidiViz {
     speed = debugSliders.get(1).val;
   }
 
-  void draw(PGraphics pg, float m) {
+  PGraphics draw(float m) {
+  pg.beginDraw();
     center.set(pg.width/2, pg.height/2);
     r = min(pg.width/2, pg.height/2);
     pg.background(0);
@@ -72,6 +76,7 @@ class Lissajous implements MidiViz {
     }
     pg.endShape();
     pg.popMatrix();
+    pg.endDraw();
 
     // Radial, this should probably be its own mode
     /*pushStyle();
@@ -81,6 +86,7 @@ class Lissajous implements MidiViz {
      float y = center.y + min(width,height)/2.*sin(f1*start)*sin(f2*start + phaseOffset);
      ellipse(x, y, 20, 20);
      popStyle();*/
+     return pg;
   }
 
 
@@ -139,7 +145,7 @@ class Lissajous implements MidiViz {
   }
 
   void mouseClicked() {
-    noteOn(1, int(random(0, 127)), 100);
+    //noteOn(1, int(random(0, 127)), 100);
   }
 
   List<Slider> sliders() {

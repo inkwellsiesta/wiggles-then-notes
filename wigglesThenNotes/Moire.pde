@@ -2,10 +2,13 @@ class Moire implements MidiViz {
   ArrayList<Target> targets = new ArrayList<Target>();
   PVector currentOrigin;
   int strokeColor = 255;
+  
+  PGraphics pg;
 
   void setup() {
     noFill();
     currentOrigin = new PVector(width/2, height/2);
+    pg = createGraphics(width, height);
   }
 
   void update() {
@@ -25,11 +28,12 @@ class Moire implements MidiViz {
     }
   }
 
-  void draw(PGraphics pg, float m) {
-    syncDraw(pg, m);
+  PGraphics draw(float m) {
+    return syncDraw(m);
   }
 
-  synchronized void syncDraw(PGraphics pg, float m) {
+  synchronized PGraphics syncDraw(float m) {
+    pg.beginDraw();
       pg.background(0);
       pg.pushMatrix();
       pg.scale(1./m);
@@ -37,12 +41,14 @@ class Moire implements MidiViz {
       targets.get(i).draw(pg, m);
     }
     pg.popMatrix();
+    pg.endDraw();
+    return pg;
   }
 
   void noteOn(int channel, int pitch, int velocity) {
     println("adding target");
     if (frameRate > 50) {
-      targets.add(new Target(10, round(10000./midiNoteToFreq(pitch)), max(1, velocity/80)));
+      targets.add(new Target(10, round(5000./midiNoteToFreq(pitch)), max(1, velocity/80)));
     } else {
       println("Can't add more than " + targets.size() + " targets.");
     }
@@ -60,7 +66,8 @@ class Moire implements MidiViz {
   }
 
   String debugString() {
-    return "framerate = " + frameRate;
+    return "framerate = " + round(frameRate) +
+    "\ntargetSize = " + targets.size();
   } 
 
   class Target {
@@ -103,6 +110,7 @@ class Moire implements MidiViz {
     void draw(PGraphics pg, float m) {
       pg.stroke(intensity, alpha);
       pg.strokeWeight(weight);
+      pg.noFill();
       // To acheive the illusion of a continuously moving wavefront...
       // Draw from the inside out when no new rings are being drawn
       //   from the center of the target
@@ -116,6 +124,7 @@ class Moire implements MidiViz {
         for (i = maxrad; i > minrad; i-=weight*4) {
           pg.ellipse(origin.x, origin.y, i, i);
         }
+      println(weight);
         // But calculate the offset so there's no discontinuity
         //  when the target is killed
         offset = i - minrad + weight*4;

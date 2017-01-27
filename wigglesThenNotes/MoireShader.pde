@@ -1,10 +1,14 @@
 class MoireShader implements MidiViz {
   PShader mShader;
 
-  private float r = 1.5;
+  private float r = 0;
   private float minR = 0;
   private float n = 1;
   private boolean updateN = false;
+  
+  private float speed = .01;
+  
+  PGraphics pg;
 
   void setup() {
     mShader = loadShader("assets/moirefrag.glsl");
@@ -12,26 +16,32 @@ class MoireShader implements MidiViz {
     mShader.set("u_resolution", float(width), float(height));
     mShader.set("r", r);
     mShader.set("n", n);
+    
+    pg = createGraphics(width, height, P2D);
   }
   
   void update() {
-    r-=.001;
-    if (r < minR) {//(n*1.5/TAU - floor(n*1.5/TAU))*PI/n) {
+    r-=speed;
+    /*if (r < minR) {//(n*1.5/TAU - floor(n*1.5/TAU))*PI/n) {
+      float offset = ((1.5*width/n) - floor(1.5*width/n));
+      println(n);
+      println(offset);
       r=1.5;
-    }
+    }*/
   }
   
-  void draw(PGraphics pg, float m) {
-    background(0);
-    shader(mShader);
-    rect(0, 0, width, height);
+  PGraphics draw(float m) {
+    pg.beginDraw();
+    pg.background(0);
+    pg.shader(mShader);
+    pg.rect(0, 0, width, height);
     mShader.set("r", r);
     if (updateN) {
       mShader.set("n", n);
       updateN = false;
     }
-    
-    println(frameRate);
+    pg.endDraw();
+    return pg;
   }
 
   void noteOn(int channel, int pitch, int velocity) {
@@ -42,13 +52,14 @@ class MoireShader implements MidiViz {
   }
 
   void controllerChange(int channel, int number, int value) {
+    speed = map(value, 0, 127, -.01, .01);
   }
 
   void mouseClicked() {
   }
 
   String debugString() {
-    return "framerate = " + frameRate;
+    return "framerate = " + round(frameRate);
   } 
 
   List<Slider> sliders() {

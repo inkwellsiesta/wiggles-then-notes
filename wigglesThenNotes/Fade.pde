@@ -8,7 +8,7 @@ class FadeManager {
   void setTarget(int targetViz) {
     this.targetViz = targetViz;
     age = 0;
-    resetShader();
+    //pg.resetShader();
   }
   
   void update() {

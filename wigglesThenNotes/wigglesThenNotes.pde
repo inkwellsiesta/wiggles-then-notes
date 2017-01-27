@@ -14,16 +14,13 @@ ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
 int activeViz;
 FadeManager fm = new FadeManager();
 
-// Used for the downsamply transition
-PGraphics pg;
-
 // Stupid thing adam asked for
 CoinManager coins;
 
 void setup() {
-  size(800, 600, P3D); // use the P2D renderer for the shader modes,
-  //fullScreen(P3D); // otherwise, use the default renderer
-  pg = createGraphics(800, 600);
+  size(800, 600, P2D); // use the P2D renderer for the shader modes,
+  //fullScreen(P2D); // otherwise, use the default renderer
+  //pg = createGraphics(800, 600);
 
   vizes.add(new Lissajous());
   vizes.add(new MoireShader());
@@ -53,24 +50,20 @@ void draw() {
 
 
   // Draw onto a PGraphics object
-  pg.beginDraw();
   vizes.get(activeViz).update();
   float multiplier = 1.;
   if (fm.age > 0 && fm.age < 100) {
-     multiplier = map(abs(50-fm.age), 0, 50, 80, 4);
+    multiplier = map(abs(50-fm.age), 0, 50, 80, 4);
   }
-  vizes.get(activeViz).draw(pg, multiplier);
-  pg.endDraw();
+  PGraphics pg = vizes.get(activeViz).draw(multiplier);
 
 
   // Downsample and upsample
   if (fm.age > 0 && fm.age < 100) {
-    PImage pi = pg.get();
-    image(pg, 0, 0, width*multiplier, height*multiplier);
   } else {
-    tint(255, 100);
-    image(pg, 0, 0, width, height);
   }
+  tint(255, 100);
+  image(pg, 0, 0, width*multiplier, height*multiplier);
   debugTray.draw();
 
   coins.draw();
