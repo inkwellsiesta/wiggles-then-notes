@@ -10,7 +10,7 @@ class DebugTray {
   public void setup() {
     isActive = false;
     isHovered = false;
-    h = new AniFloat(inactiveHeight);
+    h = new AniFloat(inactiveHeight, Pattern.EASING);
   }
 
   public void draw() {

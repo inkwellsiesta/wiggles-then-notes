@@ -13,7 +13,7 @@ class FadeManager {
   
   void update() {
     age++;
-    if (age == 50) {
+    if (age == 25) {
       activeViz = targetViz;
     }
   }

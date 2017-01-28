@@ -4,15 +4,10 @@ class Moire implements MidiViz {
   int strokeColor = 255;
   
   PGraphics pg;
-  PShape circle;
 
   void setup() {
     currentOrigin = new PVector(width/2, height/2);
     pg = createGraphics(width, height);
-    circle = createShape(ELLIPSE, 0, 0, width, width);
-    circle.setFill(color(0,0,0,0));
-    circle.setStroke(255);
-    circle.setStrokeWeight(3);
   }
 
   void update() {
@@ -40,7 +35,6 @@ class Moire implements MidiViz {
     pg.beginDraw();
       pg.background(0);
       pg.pushMatrix();
-      //pg.shape(circle, width/2, height/2, 40, 40);
       pg.scale(1./m);
     for (int i = 0; i < targets.size(); i++) {
       targets.get(i).draw(pg, m);
@@ -52,7 +46,7 @@ class Moire implements MidiViz {
 
   void noteOn(int channel, int pitch, int velocity) {
     println("adding target");
-    if (frameRate > 50) {
+    if (frameRate > 25) {
       targets.add(new Target(10, round(5000./midiNoteToFreq(pitch)), max(1, velocity/80)));
     } else {
       println("Can't add more than " + targets.size() + " targets.");
@@ -71,6 +65,11 @@ class Moire implements MidiViz {
   }
   
   void keyPressed() {
+    if (keyCode == BACKSPACE) {
+      for (int i = 0; i < targets.size(); i++) {
+        targets.remove(targets.get(i));
+      }
+    }
   }
 
   String debugString() {

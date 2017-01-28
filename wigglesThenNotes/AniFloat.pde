@@ -1,11 +1,27 @@
+enum Pattern { EASING, SPRING };
+
 class AniFloat {
   private float val;
   private float target;
+  
+  private Pattern pattern;
+  
+  private float easing = .5;
+  
+  private final static float k = .3;
+  private final static float b = .9;
+  private float v;
 
-
-  AniFloat(float val) {
+  AniFloat(float val, Pattern p) {
     this.target = val;
     this.val = val;
+    this.pattern = p;
+    
+    v = 0.f;
+  }
+  
+  public void setEasing(float e) {
+    easing = e;
   }
 
   public float val() {
@@ -17,6 +33,17 @@ class AniFloat {
   }
 
   public void update() {
-    this.val+=(this.target - this.val)*.5;
+    switch (pattern) {
+      case EASING:
+        this.val+=(this.target - this.val)*easing;
+        break;
+      case SPRING:
+        float a = this.target - this.val;
+        v+=(k*a);
+        v*=b;
+        this.val += v;
+        
+        break;
+    }
   }
 }

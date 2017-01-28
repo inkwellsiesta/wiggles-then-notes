@@ -4,9 +4,11 @@ class MoireShader implements MidiViz {
   private float r = 0;
   private float n = 75;
   private boolean updateN = true;
+  private boolean updateFlip = false;
+  private boolean flip = false;
   
   private float speed = .001;
-  private final float MAX_SPEED = .001;
+  private final float MAX_SPEED = .005;
   
   PGraphics pg;
 
@@ -16,6 +18,8 @@ class MoireShader implements MidiViz {
     mShader.set("u_resolution", float(width), float(height));
     mShader.set("r", r);
     mShader.set("n", n);
+    mShader.set("m", 1.f);
+    mShader.set("flip", flip);
     
     pg = createGraphics(width, height, P2D);
   }
@@ -29,10 +33,15 @@ class MoireShader implements MidiViz {
     pg.background(0);
     pg.shader(mShader);
     pg.rect(0, 0, width, height);
+    mShader.set("m", m);
     mShader.set("r", r);
     if (updateN) {
       mShader.set("n", n);
       updateN = false;
+    }
+    if (updateFlip) {
+      mShader.set("flip", flip);
+      updateFlip = false;
     }
     pg.endDraw();
     return pg;
@@ -42,6 +51,10 @@ class MoireShader implements MidiViz {
     //mShader.set("r", 0.5); // can only do this in the main thread
     //n = pitch;
     //updateN = true;
+    if (velocity > 0) {
+      flip = !flip;
+      updateFlip = true;
+    }
   }
 
   void controllerChange(int channel, int number, int value) {
@@ -55,7 +68,8 @@ class MoireShader implements MidiViz {
   }
 
   String debugString() {
-    return "framerate = " + round(frameRate);
+    return "framerate = " + round(frameRate) + "\n" +
+    "speed = " + speed;
   } 
 
   List<Slider> sliders() {

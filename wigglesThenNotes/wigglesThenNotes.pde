@@ -7,6 +7,8 @@ import themidibus.*;
 MidiBus myBus;
 OscP5 oscP5;
 
+
+boolean debug = false;
 DebugTray debugTray = new DebugTray();
 
 // Keeps track of the visual mode
@@ -18,13 +20,15 @@ FadeManager fm = new FadeManager();
 CoinManager coins;
 
 void setup() {
-  size(800, 600, P2D); // use the P2D renderer for the shader modes,
-  //fullScreen(P2D); // otherwise, use the default renderer
+  //size(800, 600, P2D); // use the P2D renderer for the shader modes,
+  fullScreen(P2D); // otherwise, use the default renderer
+  background(0);
+  if (!debug) noCursor();
   //pg = createGraphics(800, 600);
 
   vizes.add(new Lissajous());
   vizes.add(new MoireShader());
-  vizes.add(new Moire());
+  //vizes.add(new Moire());
 
   activeViz = 0;
 
@@ -52,8 +56,8 @@ void draw() {
   // Draw onto a PGraphics object
   vizes.get(activeViz).update();
   float multiplier = 1.;
-  if (fm.age > 0 && fm.age < 100) {
-    multiplier = map(abs(50-fm.age), 0, 50, 80, 4);
+  if (fm.age > 0 && fm.age < 50) {
+    multiplier = map(abs(25-fm.age), 0, 25, 80, 4);
   }
   PGraphics pg = vizes.get(activeViz).draw(multiplier);
 
@@ -62,9 +66,10 @@ void draw() {
   if (fm.age > 0 && fm.age < 100) {
   } else {
   }
-  tint(255, 100);
+  //tint(255, 100);
   image(pg, 0, 0, width*multiplier, height*multiplier);
-  debugTray.draw();
+  
+  if (debug) debugTray.draw();
 
   coins.draw();
 
@@ -90,7 +95,6 @@ void keyPressed() {
 void mouseClicked() {
   vizes.get(activeViz).mouseClicked();
 
-  coins.addCoin();
   debugTray.mouseClicked();
 }
 
@@ -163,7 +167,7 @@ void oscEvent(OscMessage theOscMessage) {
       return;
     }
   }
-  if (theOscMessage.checkAddrPattern("/mtn/ctrl")) {    
+ /* if (theOscMessage.checkAddrPattern("/mtn/ctrl")) {    
     if (theOscMessage.checkTypetag("iii")) {
       int number = theOscMessage.get(0).intValue();
       int value = theOscMessage.get(1).intValue();
@@ -181,6 +185,6 @@ void oscEvent(OscMessage theOscMessage) {
 
       return;
     }
-  }
+  }*/
 }
 //--- ---//
