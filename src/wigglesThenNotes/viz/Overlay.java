@@ -1,11 +1,6 @@
 package wigglesThenNotes.viz;
 
 import java.util.List;
-
-import javax.tools.JavaFileManager;
-
-import jogamp.opengl.awt.Java2D;
-
 import java.io.File;
 import processing.core.PGraphics;
 import processing.core.PImage;

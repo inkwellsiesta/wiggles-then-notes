@@ -161,14 +161,16 @@ public class wigglesThenNotes extends PApplet {
 	      int velocity = theOscMessage.get(1).intValue();
 	      int channel = theOscMessage.get(2).intValue();
 	      
-	      //There a limited set of OSC commands that are unique in that they control the outer sketch, not the inner vizualization
+	      //The following channels control the outer sketch, not the inner viz
 	      //CHANNEL 10 - change viz	      
 	      if(channel == 10 && velocity > 0)
 	      {
 	    	  if(pitch >= 0 && pitch < vizes.size())
 	    		  fm.setTarget(pitch);
 	    	  
-	      } else if (channel == 11 && velocity > 0) {
+	      } 
+	      //CHANNEL 11 - coins
+	      else if (channel == 11 && velocity > 0) {
 	        coins.addCoin();
 	      }
 	      //Otherwise pass data to the active viz
