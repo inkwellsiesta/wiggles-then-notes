@@ -1,4 +1,4 @@
-package wigglesThenNotes;
+package wigglesThenNotes.viz;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,13 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
+import wigglesThenNotes.AniFloat;
+import wigglesThenNotes.MidiViz;
+import wigglesThenNotes.Pattern;
+import wigglesThenNotes.Slider;
+import wigglesThenNotes.wigglesThenNotes;
 
-class Lissajous implements MidiViz {
+public class Lissajous implements MidiViz {
 	wigglesThenNotes sketch;
 	  PVector center;
 	  float randomness, // 

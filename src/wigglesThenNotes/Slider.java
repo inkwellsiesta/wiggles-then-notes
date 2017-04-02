@@ -2,17 +2,17 @@ package wigglesThenNotes;
 
 import processing.core.PApplet;
 
-class Slider {
-	  final String name;
-	  final float min, max;
-	  float val;
+public class Slider {
+	  public final String name;
+	  public final float min, max;
+	  public float val;
 	  
 	  wigglesThenNotes sketch;
 
 	  float x, y, w, h;
 	  boolean isAdjusting;
 
-	  Slider(String name,
+	  public Slider(String name,
 	        float min, float max,
 	        wigglesThenNotes sketch) {
 	    this.name = name;

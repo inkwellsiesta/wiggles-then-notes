@@ -7,14 +7,18 @@ import oscP5.OscP5;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import themidibus.MidiBus;
+import wigglesThenNotes.viz.Lissajous;
+import wigglesThenNotes.viz.MoireShader;
+import wigglesThenNotes.viz.Overlay;
+
+
 
 public class wigglesThenNotes extends PApplet {
 	// Listening for input other than mouse and keyboard
 	MidiBus myBus;
 	OscP5 oscP5;
 
-
-	boolean debug = false;
+	public boolean debug = true;
 	DebugTray debugTray = new DebugTray();
 
 	// Keeps track of the visual mode
@@ -24,24 +28,22 @@ public class wigglesThenNotes extends PApplet {
 
 	// Stupid thing adam asked for
 	CoinManager coins;
+	int fadeTime = 0; //set to 50 for short transition
+	
+	public final static int WIDTH = 800;
+	public final static int HEIGHT = 600;
 	
 	public void settings() {
-		  size(800, 600, P2D); // use the P2D renderer for the shader modes,
+		  size(WIDTH, HEIGHT, P2D); // use the P2D renderer for the shader modes,
 		  //fullScreen(P2D); // otherwise, use the default renderer
 	}
 
 	public void setup() {
 	  background(0);
 	  if (!debug) noCursor();
-	  //pg = createGraphics(800, 600);
-
-	  vizes.add(new Lissajous());
-	  vizes.add(new MoireShader());
-	  //vizes.add(new Moire());
-
-	  activeViz = 0;
-
+	  
 	  coins = new CoinManager(this);
+	  
 	  // start MidiBus
 	  myBus = new MidiBus(this, 0, "Gervill");
 	  MidiBus.list();
@@ -49,6 +51,11 @@ public class wigglesThenNotes extends PApplet {
 	  // start oscP5, listening for incoming messages at port 12000
 	  oscP5 = new OscP5(this, 12000);
 
+	  vizes.add(new Overlay());
+	  //vizes.add(new Lissajous());
+	  //vizes.add(new MoireShader());
+	  
+	  activeViz = 0;
 
 	  for (MidiViz viz : vizes) {
 	    viz.setup(this);
@@ -61,33 +68,27 @@ public class wigglesThenNotes extends PApplet {
 	  //background(0);
 	  fm.update();
 
-
 	  // Draw onto a PGraphics object
 	  vizes.get(activeViz).update();
 	  float multiplier = 1.f;
-	  if (fm.age > 0 && fm.age < 50) {
+	  if (fm.age > 0 && fm.age <= fadeTime) {
 	    multiplier = map(abs(25-fm.age), 0, 25, 80, 4);
 	  }
 	  PGraphics pg = vizes.get(activeViz).draw(multiplier);
 
-
-	  // Downsample and upsample
+	  // Downsample and upsample fade transition
 	  if (fm.age > 0 && fm.age < 100) {
 	  } else {
 	  }
-	  //tint(255, 100);
 	  image(pg, 0, 0, width*multiplier, height*multiplier);
 	  
 	  if (debug) debugTray.draw();
 
 	  coins.draw();
-
-	  // Uncomment if you want to make a video
-	  //saveFrame("frames/####.tga");
 	}
 
 
-	float midiNoteToFreq(int note) {
+	public float midiNoteToFreq(int note) {
 	  return 27.5f * pow(2.f, ((float)(note) / 12.f));
 	}
 
@@ -100,7 +101,7 @@ public class wigglesThenNotes extends PApplet {
 	    fm.setTarget(num-1);
 	  }
 	}
-
+	
 	public void mouseClicked() {
 	  vizes.get(activeViz).mouseClicked();
 
@@ -112,7 +113,7 @@ public class wigglesThenNotes extends PApplet {
 	public void noteOn(int channel, int pitch, int velocity) {
 	  vizes.get(activeViz).noteOn(channel, pitch, velocity);
 
-	  if (true) {
+	  if (debug) {
 	    println();
 	    println("Note On:");
 	    println("--------");
@@ -140,7 +141,7 @@ public class wigglesThenNotes extends PApplet {
 	    viz.controllerChange(channel, number, value);
 	  }
 
-	  if (true) {
+	  if (debug) {
 	    println();
 	    println("Controller Change:");
 	    println("--------");
@@ -159,13 +160,23 @@ public class wigglesThenNotes extends PApplet {
 	      int pitch = theOscMessage.get(0).intValue();
 	      int velocity = theOscMessage.get(1).intValue();
 	      int channel = theOscMessage.get(2).intValue();
-	      if (channel == 1 && velocity > 0) {
+	      
+	      //There a limited set of OSC commands that are unique in that they control the outer sketch, not the inner vizualization
+	      //CHANNEL 10 - change viz	      
+	      if(channel == 10 && velocity > 0)
+	      {
+	    	  if(pitch >= 0 && pitch < vizes.size())
+	    		  fm.setTarget(pitch);
+	    	  
+	      } else if (channel == 11 && velocity > 0) {
 	        coins.addCoin();
-	      } else {
+	      }
+	      //Otherwise pass data to the active viz
+	      else {
 	        vizes.get(activeViz).noteOn(channel, pitch, velocity);
 	      }
 
-	      if (false) {
+	      if (debug) {
 	        println();
 	        println("OSC Note On:");
 	        println("--------");
@@ -183,7 +194,7 @@ public class wigglesThenNotes extends PApplet {
 	      int channel = theOscMessage.get(2).intValue();
 	      vizes.get(activeViz).controllerChange(channel, number, value);
 
-	      if (false) {
+	      if (debug) {
 	        println();
 	        println("OSC Controller Change:");
 	        println("--------");

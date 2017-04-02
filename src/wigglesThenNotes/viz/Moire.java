@@ -1,4 +1,4 @@
-package wigglesThenNotes;
+package wigglesThenNotes.viz;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,11 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
+import wigglesThenNotes.MidiViz;
+import wigglesThenNotes.Slider;
+import wigglesThenNotes.wigglesThenNotes;
 
-class Moire implements MidiViz {
+public class Moire implements MidiViz {
 	wigglesThenNotes sketch;
 	  ArrayList<Target> targets = new ArrayList<Target>();
 	  PVector currentOrigin;

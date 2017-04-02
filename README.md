@@ -10,3 +10,7 @@ Additionally, it requires:
 * [peasyCam](http://mrfeinberg.com/peasycam/) for the 3D rotations
 
 The versions of these libraries that were used for the development of this project are included in the ```lib``` folder
+
+## TODO
+- Ability to mask a viz using arbitrary image files
+- Read overlays from 'overlays' folder cycle through them via OSC/MIDI

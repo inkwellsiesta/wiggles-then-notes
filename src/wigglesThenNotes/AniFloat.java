@@ -1,8 +1,6 @@
 package wigglesThenNotes;
 
-enum Pattern { EASING, SPRING };
-
-class AniFloat {
+public class AniFloat {
   private float val;
   private float target;
   
@@ -14,7 +12,7 @@ class AniFloat {
   private final static float b = .9f;
   private float v;
 
-  AniFloat(float val, Pattern p) {
+  public AniFloat(float val, Pattern p) {
     this.target = val;
     this.val = val;
     this.pattern = p;

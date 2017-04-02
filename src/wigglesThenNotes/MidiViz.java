@@ -4,16 +4,16 @@ import java.util.List;
 
 import processing.core.PGraphics;
 
-interface MidiViz {
+public interface MidiViz {
 
-	  void setup(wigglesThenNotes sketch);
-	  void update();
-	  PGraphics draw(float s);
-	  void noteOn(int channel, int pitch, int velocity);
-	  void controllerChange(int channel, int number, int value);
-	  void mouseClicked();
-	  void keyPressed();
+	  public void setup(wigglesThenNotes sketch);
+	  public void update();
+	  public PGraphics draw(float s);
+	  public void noteOn(int channel, int pitch, int velocity);
+	  public void controllerChange(int channel, int number, int value);
+	  public void mouseClicked();
+	  public void keyPressed();
 	  
 	  String debugString();
-	  List<Slider> sliders();
+	  public List<Slider> sliders();
 	}
