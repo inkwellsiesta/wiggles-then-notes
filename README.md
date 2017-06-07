@@ -14,3 +14,5 @@ The versions of these libraries that were used for the development of this proje
 ## TODO
 - Ability to mask a viz using arbitrary image files
 - Read overlays from 'overlays' folder cycle through them via OSC/MIDI
+- Move the assignment of sliders to values out of the "update" function and into a function that only runs when the sliders are being manipulated. Otherwise the slider values override any incoming MIDI/OSC values.
+- Hard-code note 48 to trigger the 'wave' lissajous

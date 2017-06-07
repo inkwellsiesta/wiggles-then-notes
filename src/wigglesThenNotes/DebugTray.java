@@ -83,6 +83,7 @@ class DebugTray {
 
 	  public void mousePressed() {
 	    for (MidiViz viz : sketch.vizes) {
+	    	if(viz.sliders() != null)
 	      for (Slider slider : viz.sliders()) {
 	        slider.mousePressed();
 	      }
@@ -99,6 +100,7 @@ class DebugTray {
 
 	  public void mouseReleased() {
 	    for (MidiViz viz : sketch.vizes) {
+	    	if(viz.sliders() != null)
 	      for (Slider slider : viz.sliders()) {
 	        slider.mouseReleased();
 	      }

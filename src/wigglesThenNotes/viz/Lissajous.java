@@ -57,23 +57,30 @@ public class Lissajous implements MidiViz {
 	    f2 = sketch.midiNoteToFreq(57);
 	    
 	    noteLock = false;
-
+	    
 	    debugSliders = new ArrayList<Slider>();
+	    /*
 	    // decay
 	    debugSliders.add(new Slider("Decay", -1, 0, sketch));
 	    // speed
 	    debugSliders.add(new Slider("Speed", 0, maxSpeed, sketch));
+	    //alpha
+	    debugSliders.add(new Slider("Alpha", 0, 255, sketch));
+	    */
 	  }
 
 	  public void update() {
+		
 	    start+=speed;
 	    start%=PApplet.TAU;
 
+	    //TODO only update these values when the debug sliders move. Otherwise they overwrite incoming MIDI/OSC values making it hard to debug
 	    //decay.setTarget(debugSliders.get(0).val);
 	    decay.update();
 	    r.update();
 	    
-	    speed = debugSliders.get(1).val;
+	    //speed = debugSliders.get(1).val;
+	    //alpha = debugSliders.get(2).val;
 	  }
 
 	  public PGraphics draw(float m) {
@@ -118,12 +125,26 @@ public class Lissajous implements MidiViz {
 	  }
 
 
-	  public void noteOn(int channel, int pitch, int velocity) {
-	    if (velocity > 0 && !noteLock) {
-	      int midiNote = validNotes[PApplet.floor(sketch.random(validNotes.length))];
-	      f2 = sketch.midiNoteToFreq(midiNote);
-	    }
-	  }
+	  public   void noteOn(int channel, int pitch, int velocity) {
+		    if (channel == 0 && velocity > 0) {
+		    	int midiNote = 0;
+		    	if(pitch < validNotes.length)
+		    		midiNote = validNotes[pitch];
+		    			
+		        //int midiNote = validNotes[(int) (Math.random() * validNotes.length)];
+		        f2 = sketch.midiNoteToFreq(midiNote);
+		      } else if(channel == 3 && velocity > 0)
+		      {
+		        alpha = PApplet.map(velocity, 1, 127, 0, 255);
+		      } else if(channel == 4 && velocity > 0)
+		      {
+		        decay.setTarget(PApplet.map(velocity, 1, 127, 0, -1));
+		      }else if(channel == 5 && velocity > 0)
+		      {
+		        speed = PApplet.map(velocity, 1, 127, 0, maxSpeed);
+		      }
+		      
+		    }
 
 	  public String debugString() {
 	    return "size = " + r.val() + "\n" +
@@ -148,11 +169,11 @@ public class Lissajous implements MidiViz {
 	      break;
 	    case 4:
 	      speed = PApplet.map(value, 0, 127, 0, maxSpeed);
-	      debugSliders.get(1).val = speed;
+	      //debugSliders.get(1).val = speed;
 	      break;
 	    case 5:
 	      decay.setTarget(PApplet.map(value, 0, 127, 0, -1));
-	      debugSliders.get(0).val = decay.val();
+	      //debugSliders.get(0).val = decay.val();
 	      break;
 	  /*  case 6: 
 	      maxSpeed = map(value, 0, 127, 0, .05);
@@ -167,7 +188,7 @@ public class Lissajous implements MidiViz {
 	      // Numbers higher than 20 can be used for OSC/production
 	    case 46:
 	      speed = PApplet.map(value, 0, 127, 0, maxSpeed);
-	      debugSliders.get(1).val = speed;
+	      //debugSliders.get(1).val = speed;
 	      break;
 	    case 47:
 	      alpha = PApplet.map(value, 0, 127, 0, 255);
@@ -176,17 +197,23 @@ public class Lissajous implements MidiViz {
 	  }
 
 	  public void mouseClicked() {
-	    //noteOn(1, int(random(0, 127)), 100);
+	    noteOn(1, (int)(Math.random()*127), 100);
 	  }
 	  
 	  public void keyPressed() {
-	    if (sketch.key == ' ') {
+	   /* if (sketch.key == ' ') {
 	      noteLock = !noteLock;
-	    }
+	    }*/
 	  }
 
 	  public List<Slider> sliders() {
 	    return debugSliders;
 	  }
+
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	}

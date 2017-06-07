@@ -2,13 +2,18 @@ package wigglesThenNotes;
 
 import java.util.ArrayList;
 
+import org.monome.*;
+
+import netP5.NetAddress;
 import oscP5.OscMessage;
 import oscP5.OscP5;
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import processing.core.PImage;
 import themidibus.MidiBus;
 import wigglesThenNotes.viz.Lissajous;
 import wigglesThenNotes.viz.MoireShader;
+import wigglesThenNotes.viz.MonomeDisplay;
 import wigglesThenNotes.viz.Overlay;
 
 
@@ -18,8 +23,15 @@ public class wigglesThenNotes extends PApplet {
 	MidiBus myBus;
 	OscP5 oscP5;
 
-	public boolean debug = true;
+	public boolean debug = false;
 	DebugTray debugTray = new DebugTray();
+	PImage mask;
+	boolean maskToggle = false;
+	Monome m;
+	int model[][];
+	int rows = 8, cols = 16;
+	boolean copyScreenToMonome = true;
+	
 
 	// Keeps track of the visual mode
 	ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
@@ -40,20 +52,27 @@ public class wigglesThenNotes extends PApplet {
 
 	public void setup() {
 	  background(0);
+	  m = new Monome(this);
+	  model = new int[rows][cols];
+	  
 	  if (!debug) noCursor();
 	  
 	  coins = new CoinManager(this);
 	  
+	  mask = loadImage("masks/sample.png");
+	  mask.resize(this.width, this.height);
+	  
 	  // start MidiBus
 	  myBus = new MidiBus(this, 0, "Gervill");
-	  MidiBus.list();
+	  //MidiBus.list();
 
 	  // start oscP5, listening for incoming messages at port 12000
 	  oscP5 = new OscP5(this, 12000);
 
-	  vizes.add(new Overlay());
-	  //vizes.add(new Lissajous());
+	  //vizes.add(new Overlay());
+	  vizes.add(new Lissajous());
 	  //vizes.add(new MoireShader());
+	  vizes.add(new MonomeDisplay());
 	  
 	  activeViz = 0;
 
@@ -61,16 +80,17 @@ public class wigglesThenNotes extends PApplet {
 	    viz.setup(this);
 	  }
 
-	  debugTray.setup(this);
+	  if (debug) debugTray.setup(this);
 	}
 
 	public void draw() { 
-	  //background(0);
+	  background(0);
 	  fm.update();
 
 	  // Draw onto a PGraphics object
 	  vizes.get(activeViz).update();
-	  float multiplier = 1.f;
+	  
+	  float multiplier = 1f;
 	  if (fm.age > 0 && fm.age <= fadeTime) {
 	    multiplier = map(abs(25-fm.age), 0, 25, 80, 4);
 	  }
@@ -80,11 +100,78 @@ public class wigglesThenNotes extends PApplet {
 	  if (fm.age > 0 && fm.age < 100) {
 	  } else {
 	  }
+	  
+	  if(maskToggle)
+		    pg.mask(mask);
+	  
 	  image(pg, 0, 0, width*multiplier, height*multiplier);
 	  
+	  if(copyScreenToMonome)
+	  {
+		  updateMonomeFromScreen();
+		  refreshMonome();
+	  }
+	  
 	  if (debug) debugTray.draw();
-
 	  coins.draw();
+	}
+	
+	private void updateMonomeFromScreen()
+	{
+		PImage screen = this.get();
+		  screen.loadPixels();
+		  int monomeCells = 0;
+		  int monomePixel;
+		  int screenPixel;
+		  int pixelRow;
+		  int pixelCol;
+		  
+		  for(int r=0;r<rows;r++)
+		  {
+			  for(int c=0;c<cols;c++)
+			  {
+				  pixelRow = (screen.height / rows) * r;
+				  pixelCol = (screen.width / cols) * c;
+				  
+				  screenPixel = screen.pixels[(pixelRow * screen.width + pixelCol)];
+				  
+				  //Check if black
+				  if(screenPixel < color(1, 1, 1, 255))
+					  monomePixel = 0;
+				  //Check if gray
+				  else if(screenPixel < color(10,10,10,255))
+					  monomePixel = 2;
+				  else monomePixel = 2;
+				  model[monomeCells / cols][monomeCells % cols] = monomePixel; 
+				  monomeCells++;
+			  }
+		  }
+		
+	}
+	
+	private void refreshMonome()
+	{
+		int[][] grayscaleModel = model;
+		
+		for(int r = 0;r<rows;r++)
+			for(int c=0;c<cols;c++)
+			{
+				//Check if gray
+				if(grayscaleModel[r][c] == 1)
+					grayscaleModel[r][c] = this.frameCount % 2;
+				//LED on
+				else if(grayscaleModel[r][c] == 2)
+					grayscaleModel[r][c] = 1;
+			}
+		
+		
+		m.refresh(grayscaleModel);
+		
+	}
+	
+	private void resetMonome()
+	{
+		m = new Monome(this);
 	}
 
 
@@ -105,7 +192,7 @@ public class wigglesThenNotes extends PApplet {
 	public void mouseClicked() {
 	  vizes.get(activeViz).mouseClicked();
 
-	  debugTray.mouseClicked();
+	  if (debug) debugTray.mouseClicked();
 	}
 
 	//--- MIDI CALLBACKS MIDI CALLBACKS MIDI CALLBACKS---//
@@ -124,15 +211,15 @@ public class wigglesThenNotes extends PApplet {
 	}
 
 	public void mousePressed() {
-	  debugTray.mousePressed();
+	  if( debug) debugTray.mousePressed();
 	}
 
 	public void mouseDragged() {
-	  debugTray.mouseDragged();
+		if( debug) debugTray.mouseDragged();
 	}
 
 	public void mouseReleased() {
-	  debugTray.mouseReleased();
+		if( debug) debugTray.mouseReleased();
 	}
 
 	public void controllerChange(int channel, int number, int value) {
@@ -161,7 +248,7 @@ public class wigglesThenNotes extends PApplet {
 	      int velocity = theOscMessage.get(1).intValue();
 	      int channel = theOscMessage.get(2).intValue();
 	      
-	      //The following channels control the outer sketch, not the inner viz
+	      //Channels 9 - 11 control the outer sketch, not the inner viz
 	      //CHANNEL 10 - change viz	      
 	      if(channel == 10 && velocity > 0)
 	      {
@@ -172,6 +259,25 @@ public class wigglesThenNotes extends PApplet {
 	      //CHANNEL 11 - coins
 	      else if (channel == 11 && velocity > 0) {
 	        coins.addCoin();
+	      }
+	      else if (channel == 9 && velocity >0){
+	    	  resetMonome();
+	      }
+	      else if (channel == 8 && velocity >0){
+	    	  if(velocity > 0 && velocity < 63)
+	    		  maskToggle = false;
+	    	  else maskToggle = true;
+	      }
+	      else if (channel == 7 && velocity >0){
+	    	  if(velocity > 0 && velocity < 63)
+	    		  copyScreenToMonome = false;
+	    	  else copyScreenToMonome = true;
+	      }
+	      else if (channel == 6 && velocity >0){
+	    	  //Run shutdown method on the viz about to be switched away from
+	    	  vizes.get(activeViz).shutdown();
+	    	  if(pitch < vizes.size())
+	    		  activeViz = pitch;
 	      }
 	      //Otherwise pass data to the active viz
 	      else {
@@ -213,7 +319,7 @@ public class wigglesThenNotes extends PApplet {
 
 	public static void main(String[] args) {
 		PApplet.main(wigglesThenNotes.class.getName());
-
+		System.out.println(wigglesThenNotes.class.getName());
 	}
 
 }

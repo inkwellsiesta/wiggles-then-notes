@@ -19,8 +19,6 @@ public class Overlay implements MidiViz {
 	public void setup(wigglesThenNotes sketch) {
 		this.sketch = sketch;
 		pg = sketch.createGraphics(sketch.width, sketch.height);
-		//overlay = sketch.loadImage("/" + IMAGEPATH + "/" + "sample.png");
-		
 		overlay = sketch.loadImage(File.separatorChar + IMAGEPATH + File.separatorChar + "sample.png");
 		
 		//TODO read all overlay images in the directory and load them into an arraylist
@@ -77,5 +75,11 @@ public class Overlay implements MidiViz {
 	void nextOverlay()
 	{
 		//TODO swap out the current overlay	
+	}
+
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
 	}
 }

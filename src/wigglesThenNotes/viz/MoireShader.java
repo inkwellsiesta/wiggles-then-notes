@@ -89,4 +89,10 @@ public class MoireShader implements MidiViz {
 	  public List<Slider> sliders() {
 	    return new ArrayList<Slider>();
 	  }
+
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
 	}
