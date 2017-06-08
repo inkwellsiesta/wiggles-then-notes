@@ -82,4 +82,10 @@ public class Overlay implements MidiViz {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void mouseMoved(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
 }

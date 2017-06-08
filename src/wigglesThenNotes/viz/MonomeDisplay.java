@@ -52,7 +52,8 @@ public class MonomeDisplay implements MidiViz {
 		int rowWidth = sketch.height / rows;
 		
 		pg.beginDraw();
-		pg.background(0, 100);
+		pg.background(0);
+		//pg.strokeWeight(1);
 		pg.stroke(255);
 		pg.fill(255);
 		  for(int x=0;x<rows;x++)
@@ -62,6 +63,20 @@ public class MonomeDisplay implements MidiViz {
 		      if(getModel()[x][y] == 1)pg.rect(y*colWidth, x*rowWidth, colWidth, rowWidth);
 		    }
 		  }
+		  
+		  //Separating lines
+		  pg.stroke(0);
+		  pg.strokeWeight(10);
+		  for(int x=0;x<rows;x++)
+		  {
+			  pg.line(0, x * (sketch.height/rows), sketch.width, x * (sketch.height/rows));
+	      }
+		  
+		  for(int y=0;y<cols;y++)
+		  {
+			  pg.line(y * (sketch.width/cols), 0 , y * (sketch.width/cols), sketch.height);
+		  }
+		  
 		pg.endDraw();
 		return pg;
 	}
@@ -194,6 +209,12 @@ public class MonomeDisplay implements MidiViz {
 		// TODO Auto-generated method stub
 		clearModel();
 		m.refresh(getModel());
+	}
+
+	@Override
+	public void mouseMoved(int x, int y) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

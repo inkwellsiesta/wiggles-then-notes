@@ -10,7 +10,9 @@ import oscP5.OscP5;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.opengl.PShader;
 import themidibus.MidiBus;
+import wigglesThenNotes.viz.Battista;
 import wigglesThenNotes.viz.Lissajous;
 import wigglesThenNotes.viz.MoireShader;
 import wigglesThenNotes.viz.MonomeDisplay;
@@ -27,12 +29,15 @@ public class wigglesThenNotes extends PApplet {
 	DebugTray debugTray = new DebugTray();
 	PImage mask;
 	boolean maskToggle = false;
+	boolean applyEdgeFilter = false;
 	Monome m;
 	int model[][];
 	int rows = 8, cols = 16;
-	boolean copyScreenToMonome = true;
+	boolean copyScreenToMonome = false;
 	
-
+	//Shaders
+	PShader edges;
+	
 	// Keeps track of the visual mode
 	ArrayList<MidiViz> vizes = new ArrayList<MidiViz>();
 	int activeViz;
@@ -44,6 +49,7 @@ public class wigglesThenNotes extends PApplet {
 	
 	public final static int WIDTH = 800;
 	public final static int HEIGHT = 600;
+	public float cubeRotate = 0f;
 	
 	public void settings() {
 		  size(WIDTH, HEIGHT, P2D); // use the P2D renderer for the shader modes,
@@ -57,22 +63,24 @@ public class wigglesThenNotes extends PApplet {
 	  
 	  if (!debug) noCursor();
 	  
+	  edges = loadShader("edges.glsl");
+	  
 	  coins = new CoinManager(this);
 	  
 	  mask = loadImage("masks/sample.png");
 	  mask.resize(this.width, this.height);
 	  
 	  // start MidiBus
-	  myBus = new MidiBus(this, 0, "Gervill");
+	  // myBus = new MidiBus(this, 0, "Gervill");
 	  //MidiBus.list();
 
-	  // start oscP5, listening for incoming messages at port 12000
 	  oscP5 = new OscP5(this, 12000);
 
 	  //vizes.add(new Overlay());
-	  vizes.add(new Lissajous());
+	  //vizes.add(new Lissajous());
+	  vizes.add(new Battista());
 	  //vizes.add(new MoireShader());
-	  vizes.add(new MonomeDisplay());
+	  //vizes.add(new MonomeDisplay());
 	  
 	  activeViz = 0;
 
@@ -106,11 +114,15 @@ public class wigglesThenNotes extends PApplet {
 	  
 	  image(pg, 0, 0, width*multiplier, height*multiplier);
 	  
+	  
+	  
 	  if(copyScreenToMonome)
 	  {
 		  updateMonomeFromScreen();
 		  refreshMonome();
 	  }
+	  
+	  if(applyEdgeFilter)filter(edges);
 	  
 	  if (debug) debugTray.draw();
 	  coins.draw();
@@ -320,6 +332,12 @@ public class wigglesThenNotes extends PApplet {
 	public static void main(String[] args) {
 		PApplet.main(wigglesThenNotes.class.getName());
 		System.out.println(wigglesThenNotes.class.getName());
+	}
+	
+	public void mouseMoved()
+	{
+		vizes.get(activeViz).mouseMoved(this.mouseX, this.mouseY);
+		
 	}
 
 }

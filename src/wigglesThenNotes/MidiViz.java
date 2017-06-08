@@ -17,4 +17,5 @@ public interface MidiViz {
 	  String debugString();
 	  public List<Slider> sliders();
 	  public void shutdown();
+	  public void mouseMoved(int x, int y);
 	}

@@ -216,4 +216,10 @@ public class Lissajous implements MidiViz {
 		
 	}
 
+	@Override
+	public void mouseMoved(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	}
