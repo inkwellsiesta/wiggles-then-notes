@@ -12,7 +12,6 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.opengl.PShader;
 import themidibus.MidiBus;
-import wigglesThenNotes.viz.Battista;
 import wigglesThenNotes.viz.Lissajous;
 import wigglesThenNotes.viz.MoireShader;
 import wigglesThenNotes.viz.MonomeDisplay;
@@ -27,8 +26,11 @@ public class wigglesThenNotes extends PApplet {
 
 	public boolean debug = false;
 	DebugTray debugTray = new DebugTray();
-	PImage mask;
-	boolean maskToggle = false;
+	PImage maskImage;
+	PGraphics maskG;
+	int applyMask = 0;
+	int maskTranslateX = 0;
+	int maskDirection = 1;
 	boolean applyEdgeFilter = false;
 	Monome m;
 	int model[][];
@@ -47,13 +49,13 @@ public class wigglesThenNotes extends PApplet {
 	CoinManager coins;
 	int fadeTime = 0; //set to 50 for short transition
 	
-	public final static int WIDTH = 800;
-	public final static int HEIGHT = 600;
+	public final static int WIDTH = 1024;
+	public final static int HEIGHT = 768;
 	public float cubeRotate = 0f;
 	
 	public void settings() {
-		  size(WIDTH, HEIGHT, P2D); // use the P2D renderer for the shader modes,
-		  //fullScreen(P2D); // otherwise, use the default renderer
+		  //size(WIDTH, HEIGHT, P2D); // use the P2D renderer for the shader modes,
+		  fullScreen(P2D); // otherwise, use the default renderer
 	}
 
 	public void setup() {
@@ -67,20 +69,19 @@ public class wigglesThenNotes extends PApplet {
 	  
 	  coins = new CoinManager(this);
 	  
-	  mask = loadImage("masks/sample.png");
-	  mask.resize(this.width, this.height);
+	  maskImage = loadImage("masks/sample2.png");
+	  maskImage.resize(this.width, this.height);
 	  
-	  // start MidiBus
-	  // myBus = new MidiBus(this, 0, "Gervill");
+	  //start MidiBus
+	  //myBus = new MidiBus(this, 0, "Gervill");
 	  //MidiBus.list();
 
 	  oscP5 = new OscP5(this, 12000);
 
 	  //vizes.add(new Overlay());
-	  //vizes.add(new Lissajous());
-	  vizes.add(new Battista());
+	  vizes.add(new Lissajous());
 	  //vizes.add(new MoireShader());
-	  //vizes.add(new MonomeDisplay());
+	  vizes.add(new MonomeDisplay());
 	  
 	  activeViz = 0;
 
@@ -89,6 +90,8 @@ public class wigglesThenNotes extends PApplet {
 	  }
 
 	  if (debug) debugTray.setup(this);
+	  
+	  maskG = this.createGraphics(width,  height);
 	}
 
 	public void draw() { 
@@ -109,12 +112,50 @@ public class wigglesThenNotes extends PApplet {
 	  } else {
 	  }
 	  
-	  if(maskToggle)
-		    pg.mask(mask);
+	  //Move the mask even if it isn't being applied
+	  int imageMoveAmount = (int)(width * .01);
+	  int imageOffset = (int) (width * .259);
+	  maskTranslateX += maskDirection * imageMoveAmount;
+	  if(maskTranslateX > (width - imageOffset) || maskTranslateX < (-width + imageOffset))maskTranslateX=0;
+	  if(applyMask == 1)
+	  {
+		  maskG.beginDraw();
+		  maskG.background(0);
+		  maskG.image(maskImage, 0, 0, width, height);
+		  maskG.endDraw();
+		  pg.mask(maskG.get());
+	  }
+	  else if(applyMask == 2 || applyMask == 3)
+	  {
+		  if(applyMask ==2) maskDirection =1;else maskDirection=-1;
+		  
+		  
+		  
+		  maskG.beginDraw();
+		  maskG.background(0);
+		  maskG.translate(maskTranslateX, 0);
+		  
+		  maskG.pushMatrix();
+		  	maskG.translate((-width + imageOffset) , 0);
+		  	maskG.image(maskImage, 0, 0, width, height);
+		  	maskG.translate((-width + imageOffset) , 0);
+		  	maskG.image(maskImage, 0, 0, width, height);
+		  maskG.popMatrix();
+		  
+		  maskG.image(maskImage, 0, 0, width, height);
+		  
+		  maskG.translate(width - imageOffset , 0);
+		  maskG.image(maskImage, 0, 0,width, height);
+		  
+		  maskG.translate(width - imageOffset , 0);
+		  maskG.image(maskImage, 0, 0,width, height);
+		  
+		  maskG.endDraw();
+		  //image(maskG.get(), 0, 0, width, height);
+		  pg.mask(maskG.get());
+	  }
 	  
 	  image(pg, 0, 0, width*multiplier, height*multiplier);
-	  
-	  
 	  
 	  if(copyScreenToMonome)
 	  {
@@ -275,10 +316,9 @@ public class wigglesThenNotes extends PApplet {
 	      else if (channel == 9 && velocity >0){
 	    	  resetMonome();
 	      }
+	      //MASKING
 	      else if (channel == 8 && velocity >0){
-	    	  if(velocity > 0 && velocity < 63)
-	    		  maskToggle = false;
-	    	  else maskToggle = true;
+	    	  applyMask = pitch;
 	      }
 	      else if (channel == 7 && velocity >0){
 	    	  if(velocity > 0 && velocity < 63)
@@ -290,6 +330,10 @@ public class wigglesThenNotes extends PApplet {
 	    	  vizes.get(activeViz).shutdown();
 	    	  if(pitch < vizes.size())
 	    		  activeViz = pitch;
+	      }else if (channel == 12 && velocity >0){
+	    	  if(velocity > 0 && velocity < 63)
+	    		  applyEdgeFilter = false;
+	    	  else applyEdgeFilter = true;
 	      }
 	      //Otherwise pass data to the active viz
 	      else {
